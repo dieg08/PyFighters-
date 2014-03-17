@@ -1,5 +1,4 @@
-
-import pygame, sys, os, random
+import pygame, sys, os, random, subprocess, time
 from pygame.locals import * 
 
 class MenuItem (pygame.font.Font):
@@ -97,13 +96,82 @@ class Menu:
                     menuEvent = pygame.event.Event(self.MENUCLICKEDEVENT, item=curItem, text=menuItem.get_text())
                     pygame.event.post(menuEvent)
                 curItem = curItem + 1
-            
+                
+def nextScreen():
+    pygame.mixer.music.load('02 Banish From Sanctuary.mp3')
+    pygame.mixer.music.play(0)    
+    size = width, height = 800, 600
+    speed1 = [0, 0]
+    speed2 = [0, 0]
+    black = 0, 0, 0
+
+    screen = pygame.display.set_mode(size)
+
+    player1 = pygame.image.load("CarverSprite/CarverStill.gif").convert()
+    player1Rect = player1.get_rect(center=(100,550))
+    player2 = pygame.image.load("OrcSprite/OrcStill.gif").convert()
+    player2Rect = player2.get_rect(center=(700, 550))
+        
+    face1 = "right"
+    face2 = "left"
+    player2 = pygame.transform.flip(player2, 1, 0)
+    screen.fill(black)
+    screen.blit(player1, player1Rect)
+    screen.blit(player2, player2Rect)
+    pygame.display.flip()
+        
+    keys = None
+    while 1:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_d]:
+            speed1[0] = 2
+            if face1 == "left":
+                face1 = "right"
+                player1 = pygame.transform.flip(player1, 1, 0)
+        if keys[pygame.K_a]:
+            speed1[0] = -2
+            if face1 == "right":
+                face1 = "left"
+                player1 = pygame.transform.flip(player1, 1, 0)
+        if not keys[pygame.K_a] and not keys[pygame.K_d]:
+            speed1 = [0, 0]
+        if keys[pygame.K_RIGHT]:
+            speed2[0] = 2
+            if face2 == "left":
+                face2 = "right"
+                player2 = pygame.transform.flip(player2, 1, 0)
+        if keys[pygame.K_LEFT]:
+            speed2[0] = -2
+            if face2 == "right":
+                face2 = "left"
+                player2 = pygame.transform.flip(player2, 1, 0)
+        if not keys[pygame.K_RIGHT] and not keys[pygame.K_LEFT] :
+            speed2 = [0, 0]
+        if player1Rect.right + speed1[0] > 800 or \
+           player1Rect.left + speed1[0] < 0:
+            speed1 = [0, 0]
+        if player2Rect.right + speed2[0] > 800 or \
+           player2Rect.left + speed2[0] < 0:
+            speed2 = [0, 0]
+        player1Rect = player1Rect.move(speed1)
+        player2Rect = player2Rect.move(speed2)
+        screen.fill(black)
+        screen.blit(player1, player1Rect)
+        screen.blit(player2, player2Rect)
+        pygame.display.flip()
+        time.sleep(.01)
+
 def main():
     # pygame initialization
     width = 800
     height = 600
 
     pygame.init()
+    pygame.mixer.music.load('8bp107-01-linde-galileon.mp3')
+    pygame.mixer.music.play(0)
     screen = pygame.display.set_mode((width, height))
     pygame.display.set_caption('PyFighters')
     pygame.mouse.set_visible(1)
@@ -139,6 +207,10 @@ def main():
             # quit the game if escape is pressed
             if event.type == QUIT:
                 return
+            elif event.type == Menu.MENUCLICKEDEVENT:    
+                if event.text == "Play PyFighters":
+                    #subprocess.Popen(["python2.7", "movementtests.py"])
+                    nextScreen()
             elif event.type == KEYDOWN and event.key == K_ESCAPE:
                 myMenu.activate()
             elif event.type == Menu.MENUCLICKEDEVENT:
@@ -147,11 +219,10 @@ def main():
                 elif event.item == 0:
                     isGameActive = True
                     myMenu.deactivate()
-                
             
-     
                 
-        img = pygame.image.load("sam.jpg").convert()
+        #img = pygame.image.load("sam.jpg").convert()
+        #subprocess.Popen(["python2.7", "movementtests.py"])
         screen.blit(background, (0, 0))    
         if myMenu.isActive():
             myMenu.drawMenu()
