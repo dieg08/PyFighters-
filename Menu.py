@@ -98,67 +98,140 @@ class Menu:
                 curItem = curItem + 1
                 
 def nextScreen():
-    pygame.mixer.music.load('02 Banish From Sanctuary.mp3')
-    pygame.mixer.music.play(0)    
+    pygame.init()
     size = width, height = 800, 600
     speed1 = [0, 0]
     speed2 = [0, 0]
     black = 0, 0, 0
 
     screen = pygame.display.set_mode(size)
+    level = pygame.image.load("Level/PyfightersStage1.gif").convert()
+    levelRect = level.get_rect(center=(400,300))
 
+    """
+        Initialize the Surfaces to hold character images and have a rectangle
+        around each for collision purposes.
+    """
     player1 = pygame.image.load("CarverSprite/CarverStill.gif").convert()
-    player1Rect = player1.get_rect(center=(100,550))
+    player1Rect = player1.get_rect(bottom=(585), left=(100))
     player2 = pygame.image.load("OrcSprite/OrcStill.gif").convert()
-    player2Rect = player2.get_rect(center=(700, 550))
+    player2Rect = player2.get_rect(bottom=(585), right=(700))
         
+    """
+        Initialize character facings
+    """
     face1 = "right"
     face2 = "left"
     player2 = pygame.transform.flip(player2, 1, 0)
-    screen.fill(black)
+    
+    """
+        Jump counters, if jumpN is ever greater than 5, then jumpNMax = 1
+    """
+    jump1 = 0
+    jump1Max = 0
+    jump1Peak = 0
+    jump1Double = 0
+    
+    """
+        Draw the first display and both characters
+    """
+    screen.blit(level, levelRect)
     screen.blit(player1, player1Rect)
     screen.blit(player2, player2Rect)
     pygame.display.flip()
         
     keys = None
     while 1:
+        """
+            Event Handling
+        """
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
+            if event.type == pygame.KEYDOWN and jump1Double < 2:
+                jump1Double = jump1Double + 1
+                keypressed = pygame.key.name(event.key)
+                if keypressed == pygame.key.name(pygame.K_SPACE):
+                    jump1Peak = player1Rect.top - 100
+                    print jump1Peak
         keys = pygame.key.get_pressed()
+        """
+            Player 1 Movement
+            Controls:
+            A           = Left
+            D           = Right
+            Spacebar    = Jump (Double Jump Enabled on rise, not fall)
+        """
         if keys[pygame.K_d]:
-            speed1[0] = 2
+            speed1[0] = 3.5
             if face1 == "left":
                 face1 = "right"
                 player1 = pygame.transform.flip(player1, 1, 0)
         if keys[pygame.K_a]:
-            speed1[0] = -2
+            speed1[0] = -4
             if face1 == "right":
                 face1 = "left"
                 player1 = pygame.transform.flip(player1, 1, 0)
+        if keys[pygame.K_SPACE]:
+            if jump1Max < 2:
+                jump1 = 4
+            jump1Max = jump1Max + 1
         if not keys[pygame.K_a] and not keys[pygame.K_d]:
-            speed1 = [0, 0]
+            speed1[0] = 0
+        """
+            Player 2 Movement
+            Controls:
+                Left arrow  = Left
+                Right arrow = Right
+                (Jump Not Implemented)
+        """
         if keys[pygame.K_RIGHT]:
-            speed2[0] = 2
+            speed2[0] = 4
             if face2 == "left":
                 face2 = "right"
                 player2 = pygame.transform.flip(player2, 1, 0)
         if keys[pygame.K_LEFT]:
-            speed2[0] = -2
+            speed2[0] = -4
             if face2 == "right":
                 face2 = "left"
                 player2 = pygame.transform.flip(player2, 1, 0)
         if not keys[pygame.K_RIGHT] and not keys[pygame.K_LEFT] :
-            speed2 = [0, 0]
-        if player1Rect.right + speed1[0] > 800 or \
-           player1Rect.left + speed1[0] < 0:
-            speed1 = [0, 0]
-        if player2Rect.right + speed2[0] > 800 or \
-           player2Rect.left + speed2[0] < 0:
-            speed2 = [0, 0]
+            speed2[0] = 0
+        if player1Rect.right + speed1[0] > 785 or \
+           player1Rect.left + speed1[0] < 15:
+            speed1[0] = 0
+        if player2Rect.right + speed2[0] > 785 or \
+           player2Rect.left + speed2[0] < 15:
+            speed2[0] = 0
+        """
+            Jumping logic for Player 1
+        """
+        if jump1 > 0:
+            jump1 = jump1 - 1
+            speed1[1] = -3
+        elif jump1 < 0:
+            jump1 = jump1 + 1
+            speed1[1] = 3
+        else:
+            if jump1Max == 1:
+                jump1 = -4
+                speed1[1] = 0
+        if player1Rect.bottom + speed1[1] > 585:
+            speed1[1] = 0
+            jump1Max = 0            
+            jump1Double = 0
+        if player1Rect.top + speed1[1] < jump1Peak:
+            speed1[1] = 0
+            jump1 = -4
+        
+        """
+            Move Surfaces and redraw screen, then delay to keep game time at
+            a reasonable pace.
+        """
         player1Rect = player1Rect.move(speed1)
         player2Rect = player2Rect.move(speed2)
         screen.fill(black)
+        screen.blit(level, levelRect)
         screen.blit(player1, player1Rect)
         screen.blit(player2, player2Rect)
         pygame.display.flip()
