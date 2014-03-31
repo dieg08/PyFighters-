@@ -3,6 +3,8 @@ import GameClient, pygame, sys
 """
 Created on Sun Mar 30 16:05:48 2014
 
+The Initializing script for the game
+
 @author: Will Stiles
 @author: Diego Gonzalez
 """
@@ -10,7 +12,7 @@ Created on Sun Mar 30 16:05:48 2014
 """
     Play the game
 """
-def complicated():
+def game():
     client = GameClient.GameClient()
     while 1:
         """
