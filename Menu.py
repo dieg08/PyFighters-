@@ -1,17 +1,17 @@
-import pygame, sys, os, random, subprocess, time, InitScript
-from pygame.locals import * 
+import pygame, sys, os, random, subprocess, time, InitScript, Settings
+from pygame.locals import *
 
 class MenuItem (pygame.font.Font):
     '''
     The Menu Item should be derived from the pygame Font class
     '''
-    def __init__(self, text, position, fontSize=36, antialias=1, color=(255, 255, 255), background=None):
-        pygame.font.Font.__init__(self, None, fontSize)
+    def __init__(self, text, position, fontSize=50, antialias=1, color=(0, 0, 255), background=None):
+        pygame.font.Font.__init__(self, "fonts/moonhouse.ttf", fontSize)
         self.text = text
         if background == None:
-            self.textSurface = self.render(self.text, antialias, (255, 255, 255))
+            self.textSurface = self.render(self.text, antialias, (0, 0, 255))
         else:
-            self.textSurface = self.render(self.text, antialias, (255, 255, 255), background)
+            self.textSurface = self.render(self.text, antialias, (0, 0, 255), background)
 
         self.position = self.textSurface.get_rect(centerx=position[0], centery=position[1])
     def get_pos(self):
@@ -37,11 +37,11 @@ class Menu:
         which need  to be created
         and a menu center if non is defined, the center of the screen is used
         '''
+        size = width, height = 800, 600 
         screen = pygame.display.get_surface()
-        self.area = screen.get_rect()
-        self.background = pygame.Surface(screen.get_size())
-        self.background = self.background.convert()
-        self.background.fill((0, 0, 0))
+        self.screen = pygame.display.set_mode(size, pygame.RESIZABLE)                    
+        self.level = pygame.image.load("background/back2.jpg").convert()                              
+        self.levelRect = self.level.get_rect(center=(width/2,height/2))
         self.active = False
         
         if pygame.font:
@@ -53,24 +53,30 @@ class Menu:
             # calculate the height and startpoint of the menu
             # leave a space between each menu entry
             menuHeight = (fontSize + fontSpace) * len(menuEntries)
-            startY = self.background.get_height() / 2 - menuHeight / 2  
+            startY = height / 2 - menuHeight / 2  
             
             # listOfTextPositions=list()
             self.menuEntries = list()
             for menuEntry in menuEntries:
-                centerX = self.background.get_width() / 2
+                centerX = width / 2
                 centerY = startY + fontSize + fontSpace
                 newEnty = MenuItem(menuEntry, (centerX, centerY))
                 self.menuEntries.append(newEnty)
-                self.background.blit(newEnty.get_surface(), newEnty.get_pos())
+                self.level.blit(newEnty.get_surface(), newEnty.get_pos())
                 startY = startY + fontSize + fontSpace
                 
         
             
     def drawMenu(self):
-        self.active = True            
+        self.active = True
+    
+        myfont = pygame.font.Font("fonts/moonhouse.ttf", 125)
+        title = myfont.render("PyFighters", 1, (0, 255, 0))
+        textpos = title.get_rect()
+        textpos.centerx = self.level.get_rect().centerx
         screen = pygame.display.get_surface()
-        screen.blit(self.background, (0, 0))
+        screen.blit(self.level, (0, 0))
+        screen.blit(title, textpos)
         
     def isActive(self):
         return self.active
@@ -96,41 +102,29 @@ class Menu:
                     menuEvent = pygame.event.Event(self.MENUCLICKEDEVENT, item=curItem, text=menuItem.get_text())
                     pygame.event.post(menuEvent)
                 curItem = curItem + 1
-                
+
 
 def main():
     # pygame initialization
-    width = 800
-    height = 600
-
     pygame.init()
-    pygame.mixer.music.load('8bp107-01-linde-galileon.mp3')
-    pygame.mixer.music.play(0)
-    screen = pygame.display.set_mode((width, height))
+    pygame.mixer.music.load('sounds/menu.mp3')
+    pygame.mixer.music.play(-1)
+
     pygame.display.set_caption('PyFighters')
     pygame.mouse.set_visible(1)
-    background = pygame.Surface(screen.get_size())
-    background = background.convert()
-    #background = pygame.image.load("snake.jpg")
-    background.fill((0, 0, 0))
     clock = pygame.time.Clock()
     
     
     
-    # draw background
-    img = pygame.image.load("snake.jpg").convert()
-    screen.blit(img, (0, 0))
-    pygame.display.update()
     
     # code for our menu 
     ourMenu = ("Play PyFighters",
                "How to play",
                "Statistics",
                "Exit")
- 
     myMenu = Menu(ourMenu)
     myMenu.drawMenu()
-  #  pygame.display.flip()
+    pygame.display.flip()
     # main loop for event handling and drawing
     while 1:
         clock.tick(60)
@@ -140,29 +134,24 @@ def main():
             myMenu.handleEvent(event)
             # quit the game if escape is pressed
             if event.type == QUIT:
-                return
+                sys.exit(0)
             elif event.type == Menu.MENUCLICKEDEVENT:    
                 if event.text == "Play PyFighters":
-                    #subprocess.Popen(["python2.7", "InitScript.py"])
-                    #nextScreen()
-		    InitScript.complicated()
+                    InitScript.main()
+                elif event.text == "How to play":
+                    Settings.settings()
+                #elif event.text == "Statistics":
+                    #InitScript.main()
+                    #Settings.settings();
+                elif event.text == "Exit":
+                    sys.exit(0)
             elif event.type == KEYDOWN and event.key == K_ESCAPE:
                 myMenu.activate()
-            elif event.type == Menu.MENUCLICKEDEVENT:
-                if event.text == "Exit":
-                    return
-                elif event.item == 0:
-                    isGameActive = True
-                    myMenu.deactivate()
-            
+                sys.exit(0)
+
                 
-        #img = pygame.image.load("sam.jpg").convert()
-        #subprocess.Popen(["python2.7", "movementtests.py"])
-        screen.blit(background, (0, 0))    
         if myMenu.isActive():
             myMenu.drawMenu()
-        else:
-            background.fill((0, 0, 0))
                
         
         pygame.display.flip()
