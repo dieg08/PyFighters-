@@ -1,0 +1,238 @@
+# -*- coding: utf-8 -*-
+import time, pygame, socket, select, sys
+"""
+Created on Sun Mar 30 15:22:18 2014
+
+The Game Client class provides all needed functional requirements to play the
+game.
+
+@author: Will Stiles
+@author: Diego Gonzalez
+"""
+class GameClient:
+ 
+    host = "localhost"
+    port = 5000
+     
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.settimeout(2)
+     
+    # connect to remote host
+    try :
+        s.connect((host, port))
+    except :
+        print 'Unable to connect'
+        sys.exit()
+
+    """
+        Creates a game client and initializes all of the items necessary to
+        play the game.
+    """
+    def __init__(self):
+        #   Initialize pygame
+        pygame.init()
+	socket_list = [sys.stdin, self.s]
+         
+        # Get the list sockets which are readable
+        read_sockets, write_sockets, error_sockets = select.select(socket_list , [], [])
+
+        """
+            Initialize screen default color and level, size, and the rectangle
+        """
+        self.size = self.width, self.height = 800, 600
+        self.speed1 = [0, 0]
+        self.speed2 = [0, 0]
+        self.black = 0, 0, 0
+        self.images1 = []
+        self.image1Count = 0
+        self.images2 = []
+        self.image2Count = 0
+
+        self.screen = pygame.display.set_mode(self.size, pygame.RESIZABLE)
+        self.level = pygame.image.load("Level/PyfightersStage1.gif").convert()
+        self.levelRect = self.level.get_rect(center=(self.width/2,self.height/2))
+
+        """
+            Initialize the Surfaces to hold character images and have a rectangle
+            around each for collision purposes.
+        """
+        self.player1 = pygame.image.load("CarverSprite/CarverStill.gif").convert()
+        self.player1Rect = self.player1.get_rect(bottom=(585), left=(100))
+        self.player2 = pygame.image.load("OrcSprite/OrcStill.gif").convert()
+        self.player2Rect = self.player2.get_rect(bottom=(585), right=(700))
+	data = self.s.recv(4096)
+        #if not data :
+            #print '\nDisconnected from server'
+            #sys.exit()
+        #else :
+	    #print(data)
+	    #self.player2Rect.center = (20, 20)
+        
+        """
+            Initialize character facings
+        """
+        self.face1 = "right"
+        self.face2 = "left"
+        self.player2 = pygame.transform.flip(self.player2, 1, 0)
+    
+        """
+            Jump counters, if jumpN is ever greater than 5, then jumpNMax = 1
+        """
+        self.jump1 = 0
+        self.jump1Max = 0
+        self.jump1Peak = 0
+        self.jump1Double = 0
+        """
+            Draw the first display and both characters
+        """
+        self.screen.blit(self.level, self.levelRect)
+        self.screen.blit(self.player1, self.player1Rect)
+        self.screen.blit(self.player2, self.player2Rect)
+        pygame.display.flip()
+        
+        self.keys = None            
+
+    """
+        Handles the redrawing of the sprites and the stage, as well as
+        the animations.
+    """
+    def render(self):
+        if self.speed1[1] != 0:
+            self.player1 = pygame.image.load("CarverSprite/CarverJump.gif").convert()
+        elif (self.keys[pygame.K_d] or self.keys[pygame.K_a]) and \
+            not (self.keys[pygame.K_d] and self.keys[pygame.K_a]):
+            if self.image1Count < 10:
+                self.player1 = pygame.image.load("CarverSprite/CarverRun0.gif").convert()
+                self.image1Count = self.image1Count + 1
+            elif self.image1Count < 19:
+                self.player1 = pygame.image.load("CarverSprite/CarverRun1.gif").convert()
+                self.image1Count = self.image1Count + 1
+            else:
+                self.image1Count = 0
+        else:
+            self.player1 = pygame.image.load("CarverSprite/CarverStill.gif").convert()
+
+        if self.keys[pygame.K_d]:
+            self.face1 = "right"
+        elif self.keys[pygame.K_a]:
+            self.face1 = "left"
+            
+        
+        if self.face1 == "left":
+            self.player1 = pygame.transform.flip(self.player1, 1, 0)
+        
+        self.player1Rect = self.player1Rect.move(self.speed1)
+        self.player2Rect = self.player2Rect.move(self.speed2)
+        self.screen.fill(self.black)
+        self.screen.blit(self.level, self.levelRect)
+        self.screen.blit(self.player1, self.player1Rect)
+        self.screen.blit(self.player2, self.player2Rect)
+        pygame.display.flip()
+        time.sleep(.01)
+
+    """
+        Moves players that are holding the left or right keys and changes
+        faced direction when necessary.
+    """
+    def move(self):
+        """
+            Player 1 Movement
+            Controls:
+            A           = Left
+            D           = Right
+            Spacebar    = Jump (Double Jump Enabled on rise, not fall)
+        """
+        if self.keys[pygame.K_d]:
+            self.speed1[0] = 3.5
+            if self.face1 == "left":
+                self.face1 = "right"
+                self.player1 = pygame.transform.flip(self.player1, 1, 0)
+        if self.keys[pygame.K_a]:
+            self.speed1[0] = -3.5
+            if self.face1 == "right":
+                self.face1 = "left"
+                self.player1 = pygame.transform.flip(self.player1, 1, 0)
+        if self.keys[pygame.K_a] and self.keys[pygame.K_d]:
+            self.speed1[0] = 0
+        if self.keys[pygame.K_SPACE]:
+            if self.jump1Max < 2:
+                self.jump1 = 4
+                self.jump1Peak = self.player1Rect.top - 100
+            self.jump1Max = self.jump1Max + 1
+        if not self.keys[pygame.K_a] and not self.keys[pygame.K_d]:
+            self.speed1[0] = 0
+        """
+            Player 2 Movement
+            Controls:
+                Left arrow  = Left
+                Right arrow = Right
+                (Jump Not Implemented)
+        """
+        if self.keys[pygame.K_RIGHT]:
+            self.speed2[0] = 3.5
+            if self.face2 == "left":
+                self.face2 = "right"
+                self.player2 = pygame.transform.flip(self.player2, 1, 0)
+	    msg = self.player2Rect.center
+	    self.sendPos(msg)
+        if self.keys[pygame.K_LEFT]:
+            self.speed2[0] = -3.5
+            if self.face2 == "right":
+                self.face2 = "left"
+                self.player2 = pygame.transform.flip(self.player2, 1, 0)
+	    msg = self.player2Rect.center
+	    self.sendPos(self, msg)
+        if not self.keys[pygame.K_RIGHT] and not self.keys[pygame.K_LEFT]:
+            self.speed2[0] = 0
+        if self.player1Rect.right + self.speed1[0] > 785 or \
+           self.player1Rect.left + self.speed1[0] < 15:
+            self.speed1[0] = 0
+        if self.player2Rect.right + self.speed2[0] > 785 or \
+           self.player2Rect.left + self.speed2[0] < 15:
+            self.speed2[0] = 0
+    
+    """
+        Checks for jumping and then sets the y coordinate of the player's speed
+        to negative, causing it to rise.
+    """
+    def jump(self):
+        """
+            Jumping logic for Player 1
+        """
+        if self.jump1 > 0:
+            self.jump1 = self.jump1 - 1
+            self.speed1[1] = -3
+        elif self.jump1 < 0:
+            self.jump1 = self.jump1 + 1
+            self.speed1[1] = 3
+        elif self.jump1Max == 1:
+            self.jump1 = -4
+            self.speed1[1] = 0
+        """
+            Collision avoidance
+        """
+        if self.player1Rect.bottom + self.speed1[1] > 585:
+            self.speed1[1] = 0
+            self.jump1Max = 0            
+            self.jump1Double = 0
+        if self.player1Rect.top + self.speed1[1] < self.jump1Peak or \
+            self.player1Rect.top + self.speed1[1] < self.jump1Peak:
+            self.speed1[1] = 0
+            self.jump1 = -4
+    
+    """
+        Checks for attacks and creates a Surface and rectangle around the
+        Surface for an attack object.
+    """
+    def attack(self):
+        print "hi"
+
+    
+    def sendPos(self, msg): 
+	#sends player movement
+        #msg = sys.stdin.readline()
+	print(msg)
+        s.send(msg)
+    
+
+

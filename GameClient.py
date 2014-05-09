@@ -17,6 +17,8 @@ class GameClient:
     def __init__(self):
         #   Initialize pygame
         pygame.init()
+        pygame.mixer.music.load("sounds/fight.mp3")                             
+        pygame.mixer.music.play(-1) 
         """
             Initialize screen default color and level, size, and the rectangle
         """
@@ -30,9 +32,31 @@ class GameClient:
         self.image2Count = 0
 
         self.screen = pygame.display.set_mode(self.size, pygame.RESIZABLE)
-        self.level = pygame.image.load("Level/PyfightersStage1.gif").convert()
-        self.levelRect = self.level.get_rect(center=(self.width/2,self.height/2))
-
+        self.back = pygame.image.load("Level/Scene.jpg").convert()
+        self.backRect = self.back.get_rect(center=(self.width/2,self.height/2))
+        
+        """
+            Set up floating platforms
+        """
+        self.longPlat = pygame.image.load("Level/2hundredbar.gif").convert()
+        self.plat1 = pygame.image.load("Level/hundredbar.gif").convert()
+        self.plat2 = pygame.image.load("Level/hundredbar.gif").convert()
+        # self.shortPlat1 = pygame.image.load("Level/fiftybar.gif").convert()
+        # self.shortPlat2 = pygame.image.load("Level/fiftybar.gif").convert()
+        # Platform Rectangles
+        self.longPlatRect = self.longPlat.get_rect(center=(self.width/2, 7*self.height/8))
+        self.plat1Rect = self.plat1.get_rect(center=(self.width/4, 2*self.height/3))
+        self.plat2Rect = self.plat2.get_rect(center=(self.width - self.width/4, 2*self.height/3))
+        
+        """
+            Set up HP boxes and health
+        """
+        self.player1HP = pygame.image.load("CarverHP/CarverHP13.gif").convert()
+        self.p1HPRect = self.player1HP.get_rect(right=(self.width/8), top=(self.height/10))
+        self.player2HP = pygame.image.load("OrcHP/OrcHP13.gif").convert()
+        self.p2HPRect = self.player1HP.get_rect(left=(self.width-(self.width/8)), top=(self.height/10))
+        self.p1HP = 130
+        self.p2HP = 130
         """
             Initialize the Surfaces to hold character images and have a rectangle
             around each for collision purposes.
@@ -56,13 +80,34 @@ class GameClient:
         self.jump1Max = 0
         self.jump1Peak = 0
         self.jump1Double = 0
+        self.onPlat = 0
+        
+        """
+            Attack counters
+        """
+        self.p1Shooting = False
+        self.p1ShotDirection = "right"
+        self.p1ShotCount = 0
+        self.p1Shot = pygame.image.load("CarverSprite/CarverShot.gif").convert()
+        self.p1ShotRect = self.p1Shot.get_rect(center=(-50,-50))
+        self.p1Melee = 0 
+        self.p1ShotSpeed = [0,0]
+        
         """
             Draw the first display and both characters
         """
-        self.screen.blit(self.level, self.levelRect)
+        self.screen.blit(self.back, self.backRect)
         self.screen.blit(self.player1, self.player1Rect)
         self.screen.blit(self.player2, self.player2Rect)
+        self.screen.blit(self.longPlat, self.longPlatRect)
+        self.screen.blit(self.plat1, self.plat1Rect)
+        self.screen.blit(self.plat2, self.plat2Rect)
         pygame.display.flip()
+        
+        """
+            Victory conditions
+        """
+        self.whoWins = 0
         
         self.keys = None            
 
@@ -90,17 +135,37 @@ class GameClient:
             self.face1 = "right"
         elif self.keys[pygame.K_a]:
             self.face1 = "left"
-            
-        
+                    
         if self.face1 == "left":
             self.player1 = pygame.transform.flip(self.player1, 1, 0)
+
+        """
+            Handle HP Bar change and Victory conditions
+        """
+        if self.p1HP > 0 and self.p2HP > 0:
+            self.player1HP = pygame.image.load("CarverHP/CarverHP%d.gif" % (self.p1HP / 10)).convert() 
+            self.player2HP = pygame.image.load("OrcHP/OrcHP%d.gif" % (self.p2HP / 10)).convert()
+        else:
+            if self.p1HP <= 0 and self.p2HP > 0:
+                self.whoWins = 2
+            elif self.p1HP > 0 and self.p2HP <= 0:
+                self.whoWins = 1
+            else:
+                self.whoWins = 3
         
+        self.p1ShotRect = self.p1ShotRect.move(self.p1ShotSpeed)
         self.player1Rect = self.player1Rect.move(self.speed1)
         self.player2Rect = self.player2Rect.move(self.speed2)
         self.screen.fill(self.black)
-        self.screen.blit(self.level, self.levelRect)
+        self.screen.blit(self.back, self.backRect)
+        self.screen.blit(self.longPlat, self.longPlatRect)
+        self.screen.blit(self.plat1, self.plat1Rect)
+        self.screen.blit(self.plat2, self.plat2Rect)
         self.screen.blit(self.player1, self.player1Rect)
         self.screen.blit(self.player2, self.player2Rect)
+        self.screen.blit(self.p1Shot, self.p1ShotRect)
+        self.screen.blit(self.player1HP, self.p1HPRect)
+        self.screen.blit(self.player2HP, self.p2HPRect)
         pygame.display.flip()
         time.sleep(.01)
 
@@ -181,18 +246,97 @@ class GameClient:
         """
             Collision avoidance
         """
-        if self.player1Rect.bottom + self.speed1[1] > 585:
+        if self.player1Rect.bottom + self.speed1[1] > 585 or \
+        self.onPlatform(self.player1Rect):
+            self.onPlat = 1
             self.speed1[1] = 0
             self.jump1Max = 0            
-            self.jump1Double = 0
+            self.jump1Double = 0         
+        elif self.onPlatform == False:
+            self.speed1[1] = 3
         if self.player1Rect.top + self.speed1[1] < self.jump1Peak or \
             self.player1Rect.top + self.speed1[1] < self.jump1Peak:
             self.speed1[1] = 0
             self.jump1 = -4
     
     """
+        Checks to see if the given PlayerRect is on top of a platform
+        
+        @param  playerRect  The Rect to check
+    """        
+    def onPlatform(self, playerRect):
+        onPlat = False
+        
+        # Check if the player is on top of the 200 long platform
+        if playerRect.bottom + self.speed1[1] > self.longPlatRect.top and \
+        playerRect.left < self.longPlatRect.right and \
+        playerRect.right > self.longPlatRect.left and \
+        playerRect.top + playerRect.height < self.longPlatRect.top:
+            onPlat = True
+        
+        # Check if the player is on top of the left 100 long platform
+        if playerRect.bottom + self.speed1[1] < self.plat1Rect.top and \
+        playerRect.left < self.plat1Rect.right and \
+        playerRect.right > self.plat1Rect.left and \
+        playerRect.top + playerRect.height > self.plat1Rect.top: 
+            onPlat = True
+
+        # Check if the player is on top of the right 100 long platform
+        if playerRect.bottom + self.speed1[1] < self.plat2Rect.top and \
+        playerRect.left < self.plat2Rect.right and \
+        playerRect.right > self.plat2Rect.left and \
+        playerRect.top + playerRect.height < self.plat2Rect.top:
+            onPlat = True
+            
+        return onPlat        
+        
+        
+    
+    """
         Checks for attacks and creates a Surface and rectangle around the
         Surface for an attack object.
     """
     def attack(self):
-        print "hi"
+        if self.keys[pygame.K_j] and not self.p1Shooting:
+            self.p1Shooting = self.keys[pygame.K_j]
+            self.p1ShotCount = 0
+        if self.p1ShotCount <= 25 and self.p1Shooting:
+            if self.p1ShotCount == 0:
+                self.p1ShotSpeed[0] = 8
+                if self.face1 == "left":
+                    self.p1ShotSpeed[0] = self.p1ShotSpeed[0] * -1
+                    self.p1ShotRect.right = self.player1Rect.left
+                    self.p1ShotRect.centery = self.player1Rect.centery
+                    if self.p1ShotDirection == "right":
+                        self.p1ShotDirection = "left"
+                        self.p1Shot = pygame.transform.flip(self.p1Shot, 1, 0)
+                else:
+                    self.p1ShotRect.left = self.player1Rect.right                    
+                    self.p1ShotRect.centery = self.player1Rect.centery
+                    if self.p1ShotDirection == "left":
+                        self.p1ShotDirection = "right"
+                        self.p1Shot = pygame.transform.flip(self.p1Shot, 1, 0)
+            self.p1ShotCount = self.p1ShotCount + 1
+        else:
+            self.p1ShotRect.center = (-50, -50)
+            self.p1ShotCount = 0
+            self.p1Shooting = False
+        
+        """
+            Check for hits
+        """
+        if self.p1ShotDirection == "right" and self.p1ShotRect.centerx + \
+            self.p1ShotSpeed[0] >= self.player2Rect.left and \
+            self.p1ShotRect.centerx < self.player2Rect.right and \
+            self.p1ShotRect.centery < self.player2Rect.bottom and \
+            self.p1ShotRect.centery > self.player2Rect.top:
+                self.p2HP = self.p2HP - 5
+                self.p1ShotRect.center = (-50, -50)
+                self.p1ShotSpeed[0] = 0
+                
+    """
+        Checks for a Victory
+    """
+    def ifWin(self):
+        if self.whoWins != 0:
+            return self.whoWins
