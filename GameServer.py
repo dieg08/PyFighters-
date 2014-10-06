@@ -1,64 +1,84 @@
-# Game server
- 
-import socket, select
- 
-#Function to broadcast movement messages to all connected clients
-def broadcast_data (sock, message):
-    for socket in CONNECTION_LIST:
-        if socket != server_socket and socket != sock :
-            try :
-                socket.send(message)
-            except :
-                # broken socket connection may be, chat client pressed ctrl+c for example
-                socket.close()
-                CONNECTION_LIST.remove(socket)
- 
-if __name__ == "__main__":
-     
-    # List to keep track of socket descriptors
-    CONNECTION_LIST = []
-    RECV_BUFFER = 4096 
-    PORT = 5000
-     
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    server_socket.bind(("0.0.0.0", PORT))
-    server_socket.listen(10)
- 
-    # Add server socket to the list of readable connections
-    CONNECTION_LIST.append(server_socket)
- 
-    print "Game server started on port " + str(PORT)
- 
-    while 1:
-        # Get the list sockets which are ready to be read through select
-        read_sockets,write_sockets,error_sockets = select.select(CONNECTION_LIST,[],[])
- 
-        for sock in read_sockets:
-            #New connection
-            if sock == server_socket:
-                # Handle the case in which there is a new connection recieved through server_socket
-                sockfd, addr = server_socket.accept()
-                CONNECTION_LIST.append(sockfd)
-                print "Client (%s, %s) connected" % addr
-                 
-                broadcast_data(sockfd, "[%s:%s] entered room\n" % addr)
-             
-            #Some incoming movement message from a client
-            else:
-                # Data recieved from client, process it
-                try:
-                    # a "Connection reset by peer" exception will be thrown
-                    data = sock.recv(RECV_BUFFER)
-                    if data:
-                        broadcast_data(sock, "\r" + '<' + str(sock.getpeername()) + '> ' + data)  
-			print data             
-                 
-                except:
-                    broadcast_data(sock, "Client (%s, %s) is offline" % addr)
-                    print "Client (%s, %s) is offline" % addr
-                    sock.close()
-                    CONNECTION_LIST.remove(sock)
-                    continue
-     
-    server_socket.close()
+import socket, sys, json, Queue, GameServer 
+
+class GameServer(object): 
+    #creates a GameServer, initializes it, 
+    #and then starts listening for connections
+    def main():
+        NUMBER = 1
+        server = GameServer.GameServer()
+        server._init_()
+        status = server.listen()
+        server.send(status, server.getNumber(NUMBER))
+    
+    #initializes the GameServer
+    def _init_(self):
+        self.HOST = '127.0.0.1'
+        self.PORT = 6969
+        #creates queues to store the information sent by the players
+        self.send1 = Queue.Queue()
+        self.send2 = Queue.Queue()
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        print 'Socket Created'
+        #binds the port to address
+        try:
+            self.s.bind((self.HOST, self.PORT))
+        except socket.error:
+            print 'Failed to bind'
+            sys.exit()
+        print 'Bind successful'
+
+    #method that listens for incoming connections
+    def listen(self):
+        status = None
+        self.s.listen(10)
+        while 1:
+            # wait to accept a connection - blocking call 
+            conn, addr = self.s.accept()
+            print 'connected with '+ addr[0] + ':' + str(addr[1])
+            data = conn.recv(4096)
+            reply = 'Received: ' + data
+            array = json.loads(data)
+            if array[0] == 1:
+                send1.put(array)
+                print "Put " + str(array[0]) + " in queue 1"
+                status = 1
+            elif array[0] == 2:
+                send2.put(array)
+                print "Put " + str(array[0]) + " in queue 2"
+                status = 1
+            elif array[0] == 3:
+                status = 0
+            print 'player ' + str(array[0]) 
+            print 'x position: ' + str(array[1])
+            print 'y position: ' + str(array[2])
+            print 'buttons pressed: ' + str(array[3])
+            return status
+
+    #sends messages back to the clients
+    def send(self, status, number):
+        message = None
+        if status == 0:
+            message = number
+        if status == 1:        
+            if send1.qsize() > 0 and send2.qsize() > 0:
+                message = send1.get()
+                message2 = send2.get()
+        self.s.sendall(message)
+        self.s.sendall(message2)
+
+    #assigns a player a number
+    def getNumber(self, NUMBER):
+        number = NUMBER
+        message = str(number)
+        if NUMBER == 1:
+            NUMBER = 2
+        elif NUMBER == 2:
+            NUMBER = 1
+        return message
+
+    #closse the connection and shuts down server
+    def close(self):
+        conn.close()
+        s.close()
+    
+    if __name__ == '__main__': main()
