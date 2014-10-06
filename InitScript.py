@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import GameClient, pygame, sys, WinScreen
+import GameClient, pygame, sys, socket, WinScreen, json
 """
 Created on Sun Mar 30 16:05:48 2014
 
@@ -12,8 +12,16 @@ The Initializing script for the game
 """
     Play the game
 """
+player = 3
+
 def main():
     client = GameClient.GameClient()
+    s = init()
+    send(s)
+    reply = s.recv(4096)
+    print 'gets this far'
+    player = reply
+    print str(player)
     while client.ifWin() < 1:
         """
             Event Handling
@@ -42,7 +50,31 @@ def main():
     elif client.ifWin() == 2:
         WinScreen.winner("Player 2")
 
-        
+     
+def init():
+    host = '127.0.0.1'
+    port = 6969
+    player = 1
+    try: 
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    except socket.error, msg:
+        print 'Failed to create a socket'
+        sys.exit()
+    try:
+        remote_ip = socket.gethostbyname( host )
+    except socket.gaierror:
+        #could not resolve host 
+        print 'Hostname could not be resolved. Exiting'
+        sys.exit()
+    print  'IP address of ' + host + ' is ' + remote_ip
+    s.connect((remote_ip, port))
+    return s
+
+def send(s):
+    message = [player, 0, 0, 0]
+    packet = json.dumps(message)
+    s.sendall(packet)
+
 """
     Call main method when script is run
 """
