@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import time, pygame
+import time, pygame, base
 """
 Created on Sun Mar 30 15:22:18 2014
 
@@ -16,12 +16,11 @@ class GameClient:
     """
     def __init__(self):
         #   Initialize pygame
-        pygame.init()
-        pygame.mixer.music.load("sounds/fight.mp3")                             
-        pygame.mixer.music.play(-1) 
         """
             Initialize screen default color and level, size, and the rectangle
         """
+        self.background = base.base()
+        self.background._init_("sounds/fight.mp3", "Level/Scene.jpg")
         self.size = self.width, self.height = 800, 600
         self.speed1 = [0, 0]
         self.speed2 = [0, 0]
@@ -30,11 +29,9 @@ class GameClient:
         self.image1Count = 0
         self.images2 = []
         self.image2Count = 0
-
-        self.screen = pygame.display.set_mode(self.size, pygame.RESIZABLE)
-        self.back = pygame.image.load("Level/Scene.jpg").convert()
+        self.back = self.background.getLevel()
         self.backRect = self.back.get_rect(center=(self.width/2,self.height/2))
-        
+        self.screen = self.background.getScreen()
         """
             Set up floating platforms
         """
