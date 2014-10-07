@@ -8,7 +8,8 @@ class GameServer(object):
         server = GameServer.GameServer()
         server._init_()
         status = server.listen()
-        server.send(status, server.getNumber(NUMBER))
+        #server.send(status, server.getNumber(NUMBER))
+        server.send(0, server.getNumber(NUMBER))
     
     #initializes the GameServer
     def _init_(self):
@@ -31,9 +32,9 @@ class GameServer(object):
     def listen(self):
         status = None
         self.s.listen(10)
+        conn, addr = self.s.accept()
         while 1:
             # wait to accept a connection - blocking call 
-            conn, addr = self.s.accept()
             print 'connected with '+ addr[0] + ':' + str(addr[1])
             data = conn.recv(4096)
             reply = 'Received: ' + data
@@ -52,6 +53,7 @@ class GameServer(object):
             print 'x position: ' + str(array[1])
             print 'y position: ' + str(array[2])
             print 'buttons pressed: ' + str(array[3])
+            #self.send(status, self.getNumber(1))
             return status
 
     #sends messages back to the clients
@@ -63,8 +65,13 @@ class GameServer(object):
             if send1.qsize() > 0 and send2.qsize() > 0:
                 message = send1.get()
                 message2 = send2.get()
-        self.s.sendall(message)
-        self.s.sendall(message2)
+        try:
+            self.s.sendall(message)
+            #self.s.sendall(message2)
+        except socket.error:
+            print 'Send failed'
+            sys.exit()
+
 
     #assigns a player a number
     def getNumber(self, NUMBER):

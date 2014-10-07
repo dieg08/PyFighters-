@@ -15,11 +15,12 @@ The Initializing script for the game
 player = 3
 
 def main():
+    keysP = None
     client = GameClient.GameClient()
     s = init()
     send(s)
-    reply = s.recv(4096)
-    print 'gets this far'
+    reply = s.recv(1024)
+    print reply
     player = reply
     print str(player)
     while client.ifWin() < 1:
@@ -37,6 +38,7 @@ def main():
                     client.jump1Peak = client.player1Rect.top - 100
                     print client.jump1Peak
             client.keys = pygame.key.get_pressed()
+            keysP = pygame.key.get_pressed()
         # Check for movement
         client.move()
         # Check for jumping
@@ -73,7 +75,11 @@ def init():
 def send(s):
     message = [player, 0, 0, 0]
     packet = json.dumps(message)
-    s.sendall(packet)
+    try:
+        s.sendall(packet)
+    except socket.error:
+        print 'Send failed'
+        sys.exit
 
 """
     Call main method when script is run
