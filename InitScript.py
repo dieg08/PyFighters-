@@ -15,14 +15,24 @@ The Initializing script for the game
 player = 3
 
 def main():
+    #Keys pressed
     keysP = None
+    #Create a game client
     client = GameClient.GameClient()
+    #Initialize the connection with the server
     s = init()
+    #Send a mesage to the server (broken)
     send(s)
+    #Catch a reply from the server, will contain the player
     reply = s.recv(1024)
+    #Print the reply (test)
     print reply
+    #The player number for this client
     player = reply
+    #Print the player number (test)
     print str(player)
+
+    #Start the game
     while client.ifWin() < 1:
         """
             Event Handling
@@ -52,11 +62,15 @@ def main():
     elif client.ifWin() == 2:
         WinScreen.winner("Player 2")
 
-     
+"""
+    Initialize the connection to the server
+"""
 def init():
+    #Server IP and Port num
     host = '127.0.0.1'
     port = 6969
     player = 1
+    #Try to create the socket and throw appropriate errs
     try: 
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     except socket.error, msg:
@@ -72,9 +86,14 @@ def init():
     s.connect((remote_ip, port))
     return s
 
+"""
+    Send information to the server
+"""
 def send(s):
+    #Package to hold information to send to the server
     message = [player, 0, 0, 0]
     packet = json.dumps(message)
+    #Try sending the message and catch any errors
     try:
         s.sendall(packet)
     except socket.error:
