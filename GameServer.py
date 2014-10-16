@@ -6,13 +6,14 @@ class GameServer(object):
 
     #creates a GameServer, initializes it, 
     #and then starts listening for connections
+    
     def main():
         #The player
-        NUMBER = 1
         server = GameServer.GameServer()
         server._init_()
         conn = server.listen()
-        server.send(conn, server.getNumber(NUMBER))
+        server.sendNumber(conn, server.getNumber())
+        print 'Done'
     
     #initializes the GameServer
     def _init_(self):
@@ -22,12 +23,15 @@ class GameServer(object):
         #creates queues to store the information sent by the players
         self.send1 = Queue.Queue()
         self.send2 = Queue.Queue()
+        #player number assignment
+        self.NUMBER = 1
         #Create the socket for a connection
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         print 'Socket Created'
         #binds the port to address
         try:
-            self.s.bind((self.HOST, self.PORT))
+            #self.s.bind((self.HOST, self.PORT))
+            self.s.bind(('', self.PORT))
         except socket.error:
             print 'Failed to bind'
             sys.exit()
@@ -48,13 +52,9 @@ class GameServer(object):
             if array[0] == 1:
                 send1.put(array)
                 print "Put " + str(array[0]) + " in queue 1"
-                status = 1
             elif array[0] == 2:
                 send2.put(array)
                 print "Put " + str(array[0]) + " in queue 2"
-                status = 1
-            elif array[0] == 3:
-                status = 0
             print 'player ' + str(array[0]) 
             print 'x position: ' + str(array[1])
             print 'y position: ' + str(array[2])
@@ -62,23 +62,36 @@ class GameServer(object):
             return conn
 
     #sends messages back to the clients
+    def sendNumber(self, conn, number):
+        message = number
+        try:
+            conn.send(message)
+        except socket.error:
+            print 'Send failed'
+            sys.exit()
+
     def send(self, conn, number):
         message = None
+        if number == 1:
+            message = send2.get()
+        elif number == 2:
+            message = send1.get()
+        packet = json.dumps(message)
         try:
-            conn.send('hello world!')
+            conn.send(packet)
         except socket.error:
             print 'Send failed'
             sys.exit()
 
 
     #assigns a player a number
-    def getNumber(self, NUMBER):
-        number = NUMBER
+    def getNumber(self):
+        number = self.NUMBER
         message = str(number)
-        if NUMBER == 1:
-            NUMBER = 2
-        elif NUMBER == 2:
-            NUMBER = 1
+        if self.NUMBER == 1:
+            self.NUMBER = 2
+        elif self.NUMBER == 2:
+            self.NUMBER = 1
         return message
 
     #closse the connection and shuts down server

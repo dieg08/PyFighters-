@@ -22,11 +22,9 @@ def main():
     #Initialize the connection with the server
     s = init()
     #Send a mesage to the server (broken)
-    send(s)
+    send(s, 0, 0, 0)
     #Catch a reply from the server, will contain the player
     reply = s.recv(1024)
-    #Print the reply (test)
-    print reply
     #The player number for this client
     player = reply
     #Print the player number (test)
@@ -89,9 +87,9 @@ def init():
 """
     Send information to the server
 """
-def send(s):
+def send(s, x, y, pressed):
     #Package to hold information to send to the server
-    message = [player, 0, 0, 0]
+    message = [player, x, y, pressed]
     packet = json.dumps(message)
     #Try sending the message and catch any errors
     try:
