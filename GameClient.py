@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-import time, pygame, base
+import time
+import pygame
+import base
+import Pyfighter
 """
 Created on Sun Mar 30 15:22:18 2014
 
@@ -9,6 +12,8 @@ game.
 @author: Will Stiles
 @author: Diego Gonzalez
 """
+
+
 class GameClient:
     """
         Creates a game client and initializes all of the items necessary to
@@ -19,16 +24,16 @@ class GameClient:
         """
             Initialize screen default color and level, size, and the rectangle
         """
-        self.background = base.base()
-        self.background._init_("sounds/fight.mp3", "Level/Scene.jpg")
-        self.size = self.width, self.height = 800, 600
-        self.speed1 = [0, 0]
-        self.speed2 = [0, 0]
-        self.black = 0, 0, 0
-        self.images1 = []
-        self.image1Count = 0
-        self.images2 = []
-        self.image2Count = 0
+        self.background = base.base() #
+        self.background._init_("sounds/fight.mp3", "Level/Scene.jpg") #
+        self.size = self.width, self.height = 800, 600 #
+        self.speed1 = [0, 0] #
+        self.speed2 = [0, 0] #
+        self.black = 0, 0, 0 #
+        self.images1 = [] #
+        self.image1Count = 0 #
+        self.images2 = [] #
+        self.image2Count = 0 #
         self.back = self.background.getLevel()
         self.backRect = self.back.get_rect(center=(self.width/2,self.height/2))
         self.screen = self.background.getScreen()
