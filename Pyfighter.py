@@ -30,6 +30,7 @@ class Pyfighter:
         Set up the image array for the Pyfighter
     """
     def loadImageList(self):
+
         # Still image of Pyfighter
         self.images.append(pygame.image.load(self.name + "Sprite/" + self.name + "Still.gif").convert())
         # Jump image of Pyfighter
