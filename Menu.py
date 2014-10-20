@@ -1,4 +1,4 @@
-import pygame, sys, os, random, subprocess, time, InitScript, Settings
+import pygame, sys, os, random, subprocess, time, InitScript, Settings, Script
 from pygame.locals import *
 
 class MenuItem (pygame.font.Font):
@@ -119,6 +119,7 @@ def main():
     
     # code for our menu 
     ourMenu = ("Play PyFighters",
+               "No Network",
                "How to play",
                "Statistics",
                "Exit")
@@ -140,9 +141,8 @@ def main():
                     InitScript.main()
                 elif event.text == "How to play":
                     Settings.settings()
-                #elif event.text == "Statistics":
-                    #InitScript.main()
-                    #Settings.settings();
+                elif event.text == "No Network":
+                    Script.main()
                 elif event.text == "Exit":
                     sys.exit(0)
             elif event.type == KEYDOWN and event.key == K_ESCAPE:
