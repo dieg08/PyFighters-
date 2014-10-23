@@ -12,8 +12,8 @@ class GameServer(object):
         server = GameServer.GameServer()
         server._init_()
         while 1:
-            conn = server.listen()
-            server.sendNumber(conn, server.getNumber())
+            #thread.start_new_thread(server.listen())
+            server.listen()
     
     #initializes the GameServer
     def _init_(self):
@@ -42,7 +42,6 @@ class GameServer(object):
         status = None
         self.s.listen(2)
         conn, addr = self.s.accept()
-        print "It get's here"
         while 1:
             # wait to accept a connection - blocking call 
             print 'connected with '+ addr[0] + ':' + str(addr[1])
@@ -60,7 +59,8 @@ class GameServer(object):
             print 'x position: ' + str(array[1])
             print 'y position: ' + str(array[2])
             print 'buttons pressed: ' + str(array[3])
-            return conn
+            #thread.start_new_thread(self.sendNumber(conn, self.getNumber()), 0)
+            self.sendNumber(conn, self.getNumber())
 
     #sends messages back to the clients
     def sendNumber(self, conn, number):
