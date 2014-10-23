@@ -1,6 +1,6 @@
 import pygame, sys
 
-class base(object):
+class Base(object):
 
     def _init_(self, music, picture):
         pygame.init()

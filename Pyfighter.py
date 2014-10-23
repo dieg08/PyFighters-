@@ -3,6 +3,7 @@ import pygame
 
 
 class Pyfighter:
+
     """
         Creates a Pyfighter object
     """
