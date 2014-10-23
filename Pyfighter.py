@@ -15,7 +15,7 @@ class Pyfighter:
         self.images = []
         self.loadImageList()
         # Current image
-        self.currentImage = pygame.image.load("CarverSprite/CarverStill.gif").convert()
+        self.currentImage = pygame.image.load(self.name + "Sprite/" + self.name + "Still.gif").convert()
         # Pyfighter hit box and character facing
         if player == 1:
             self.hitBox = self.currentImage.get_rect(bottom=585, left=100)
@@ -31,25 +31,25 @@ class Pyfighter:
     """
     def loadImageList(self):
 
-        # Still image of Pyfighter
+        # 0 Still image of Pyfighter
         self.images.append(pygame.image.load(self.name + "Sprite/" + self.name + "Still.gif").convert())
-        # Jump image of Pyfighter
+        # 1 Jump image of Pyfighter
         self.images.append(pygame.image.load(self.name + "Sprite/" + self.name + "Jump.gif").convert())
-        # Melee image of Pyfighter
-        self.images.append(pygame.image.load(self.name + "Sprite/" + self.name + "Melee.gif").convert())
-        # First run frame of Pyfighter
+        # 2 Melee image of Pyfighter
+        self.images.append(pygame.image.load("OrcSprite/SpitSustain.gif").convert())# self.name + "Sprite/" + self.name + "Melee.gif").convert())
+        # 3 First run frame of Pyfighter
         self.images.append(pygame.image.load(self.name + "Sprite/" + self.name + "Run0.gif").convert())
-        # Second run frame of Pyfighter
+        # 4 Second run frame of Pyfighter
         self.images.append(pygame.image.load(self.name + "Sprite/" + self.name + "Run1.gif").convert())
-        # Third run frame of Pyfighter
+        # 5 Third run frame of Pyfighter
         self.images.append(pygame.image.load(self.name + "Sprite/" + self.name + "Run2.gif").convert())
-        # Fourth run frame of Pyfighter
+        # 6 Fourth run frame of Pyfighter
         self.images.append(pygame.image.load(self.name + "Sprite/" + self.name + "Run3.gif").convert())
-        # Shoot image of Pyfighter
+        # 7 Shoot image of Pyfighter
         self.images.append(pygame.image.load(self.name + "Sprite/" + self.name + "Shoot.gif").convert())
-        # Bullet image for Pyfighter
+        # 8 Bullet image for Pyfighter
         self.images.append(pygame.image.load(self.name + "Sprite/" + self.name + "Shot.gif").convert())
-        # Bullet contact image for Pyfighter
+        # 9 Bullet contact image for Pyfighter
         self.images.append(pygame.image.load(self.name + "Sprite/" + self.name + "ShotContact.gif").convert())
 
     """
@@ -95,10 +95,25 @@ class Pyfighter:
         self.hp = amount
 
     """
+        Move the hit box
+    """
+    def setHitBox(self, box):
+        self.hitBox = box
+
+    """
+        Set the face of the Pyfighter
+    """
+    def setFace(self, face):
+        self.face = face
+
+    """
         Set the current image of the Pyfighter
     """
     def setCurrentImage(self, num):
-        self.currentImage = self.images[num]
+        if type(num) is int:
+            self.currentImage = self.images[num]
+        else:
+            self.currentImage = num
 
     """
         Set the speed of the Pyfighter on the x axis
