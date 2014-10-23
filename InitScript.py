@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-import GameClient, pygame, sys, socket, WinScreen, json
+import GameClient, pygame, sys, socket, WinScreen, json, errno 
+from socket import error as socket_error
 """
 Created on Sun Mar 30 16:05:48 2014
 
@@ -14,13 +15,12 @@ The Initializing script for the game
 """
 player = 3
 
-def main():
-    #Keys pressed
-    keysP = None
+def main(socket):
     #Create a game client
     client = GameClient.GameClient()
     #Initialize the connection with the server
-    s = init()
+    #s = init()
+    s = socket
     #Send a mesage to the server (broken)
     send(s, 0, 0, 0)
     #Catch a reply from the server, will contain the player
@@ -28,8 +28,13 @@ def main():
     #The player number for this client
     player = reply
     #Print the player number (test)
-    print str(player)
-
+    print "Player: " + str(player)
+    #Parameters of the message
+    x = None
+    y = None 
+    keysp = None
+    #Message that will be sent
+    message = [x, y, keysp]
     #Start the game
     while client.ifWin() < 1:
         """
@@ -60,29 +65,6 @@ def main():
     elif client.ifWin() == 2:
         WinScreen.winner("Player 2")
 
-"""
-    Initialize the connection to the server
-"""
-def init():
-    #Server IP and Port num
-    host = '127.0.0.1'
-    port = 6969
-    player = 1
-    #Try to create the socket and throw appropriate errs
-    try: 
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    except socket.error, msg:
-        print 'Failed to create a socket'
-        sys.exit()
-    try:
-        remote_ip = socket.gethostbyname( host )
-    except socket.gaierror:
-        #could not resolve host 
-        print 'Hostname could not be resolved. Exiting'
-        sys.exit()
-    print  'IP address of ' + host + ' is ' + remote_ip
-    s.connect((remote_ip, port))
-    return s
 
 """
     Send information to the server

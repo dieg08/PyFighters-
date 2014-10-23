@@ -1,5 +1,7 @@
-import pygame, sys, os, random, subprocess, time, InitScript, Settings, Script
+import pygame, sys, os, socket, errno, random, subprocess, time, InitScript, Settings, Script
 from pygame.locals import *
+from socket import error as socket_error 
+import Tkinter, tkMessageBox, Menu 
 
 class MenuItem (pygame.font.Font):
     '''
@@ -103,6 +105,38 @@ class Menu:
                     pygame.event.post(menuEvent)
                 curItem = curItem + 1
 
+def socketInit():
+    #Server IP and Port num                                                     
+    host = '127.0.0.1'                                                          
+    port = 6969                                                                 
+    player = 1                                                                  
+    #Try to create the socket and throw appropriate errs                        
+    try:                                                                        
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)                   
+    except socket.error, msg:                                                   
+        print 'Failed to create a socket'                                       
+        sys.exit()                                                              
+    try:                                                                        
+        remote_ip = socket.gethostbyname( host )                                
+    except socket.gaierror:                                                     
+        #could not resolve host                                                 
+        print 'Hostname could not be resolved. Exiting'                         
+        sys.exit()                                                              
+    try:                                                                        
+        s.connect((remote_ip, port))                                            
+    except socket_error as serr:                                                
+        if serr.errno != errno.ECONNREFUSED:                                    
+            #not the error we're looking for                                    
+            sys.exit()
+        top = Tkinter.Tk()                                                      
+        B1 = Tkinter.Button(top, text = "Connection Refused", command = popup)           
+        B1.pack()                                                               
+        top.mainloop()                                                          
+        main()
+    return s
+
+def popup():                                                                    
+    tkMessageBox.showinfo("Warning", "Connection Refused") 
 
 def main():
     # pygame initialization
@@ -138,7 +172,7 @@ def main():
                 sys.exit(0)
             elif event.type == Menu.MENUCLICKEDEVENT:    
                 if event.text == "Play PyFighters":
-                    InitScript.main()
+                    InitScript.main(socketInit())
                 elif event.text == "How to play":
                     Settings.settings()
                 elif event.text == "Local Play":
