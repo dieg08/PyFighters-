@@ -33,25 +33,34 @@ class Pyfighter:
     def loadImageList(self):
 
         # 0 Still image of Pyfighter
-        self.images.append(pygame.image.load(self.name + "Sprite/" + self.name + "Still.gif").convert())
+        self.images.append(pygame.image.load(self.name + "Sprite/" +
+                           self.name + "Still.gif").convert())
         # 1 Jump image of Pyfighter
-        self.images.append(pygame.image.load(self.name + "Sprite/" + self.name + "Jump.gif").convert())
+        self.images.append(pygame.image.load(self.name + "Sprite/" +
+                           self.name + "Jump.gif").convert())
         # 2 Melee image of Pyfighter
         self.images.append(pygame.image.load("OrcSprite/SpitSustain.gif").convert())# self.name + "Sprite/" + self.name + "Melee.gif").convert())
         # 3 First run frame of Pyfighter
-        self.images.append(pygame.image.load(self.name + "Sprite/" + self.name + "Run0.gif").convert())
+        self.images.append(pygame.image.load(self.name + "Sprite/" +
+                           self.name + "Run0.gif").convert())
         # 4 Second run frame of Pyfighter
-        self.images.append(pygame.image.load(self.name + "Sprite/" + self.name + "Run1.gif").convert())
+        self.images.append(pygame.image.load(self.name + "Sprite/" +
+                           self.name + "Run1.gif").convert())
         # 5 Third run frame of Pyfighter
-        self.images.append(pygame.image.load(self.name + "Sprite/" + self.name + "Run2.gif").convert())
+        self.images.append(pygame.image.load(self.name + "Sprite/" +
+                           self.name + "Run2.gif").convert())
         # 6 Fourth run frame of Pyfighter
-        self.images.append(pygame.image.load(self.name + "Sprite/" + self.name + "Run3.gif").convert())
+        self.images.append(pygame.image.load(self.name + "Sprite/" +
+                           self.name + "Run3.gif").convert())
         # 7 Shoot image of Pyfighter
-        self.images.append(pygame.image.load(self.name + "Sprite/" + self.name + "Shoot.gif").convert())
+        self.images.append(pygame.image.load(self.name + "Sprite/" +
+                           self.name + "Shoot.gif").convert())
         # 8 Bullet image for Pyfighter
-        self.images.append(pygame.image.load(self.name + "Sprite/" + self.name + "Shot.gif").convert())
+        self.images.append(pygame.image.load(self.name + "Sprite/" +
+                           self.name + "Shot.gif").convert())
         # 9 Bullet contact image for Pyfighter
-        self.images.append(pygame.image.load(self.name + "Sprite/" + self.name + "ShotContact.gif").convert())
+        self.images.append(pygame.image.load(self.name + "Sprite/" +
+                           self.name + "ShotContact.gif").convert())
 
     """
         Get the speed of the Pyfighter
