@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import time
 import pygame
-import Base
+import Platform
 import Pyfighter
+import Stage
 """
 Created on Sun Mar 30 15:22:18 2014
 
@@ -20,35 +21,37 @@ class GameClient:
         play the game.
     """
     def __init__(self):
-        #   Initialize pygame
-
+        # Black color
+        self.black = 0, 0, 0
+        # Set screen dimensions
+        self.size = self.width, self.height = 800, 600
+        # Initialize Pygame
+        pygame.init()
+        # Create the screen display
+        self.screen = pygame.display.get_surface()
+        # Set the screen size
+        self.screen = pygame.display.set_mode((self.width, self.height), pygame.RESIZABLE)
+        # Initialize Pyfighters
         self.player = Pyfighter.Pyfighter(1, "Carver")
         self.opponent = Pyfighter.Pyfighter(2, "Orc")
-        """
-            Initialize screen default color and level, size, and the rectangle
-        """
-        self.background = Base.Base() #
-        self.background._init_("sounds/fight.mp3", "Level/Scene.jpg") #
-        self.size = self.width, self.height = 800, 600 #
-        self.black = 0, 0, 0 #
-        self.image1Count = 0 #
-        self.image2Count = 0 #
-        self.back = self.background.getLevel()
-        self.backRect = self.back.get_rect(center=(self.width/2,self.height/2))
-        self.screen = self.background.getScreen()
 
-        """
-            Set up floating platforms
-        """
-        self.longPlat = pygame.image.load("Level/2hundredbar.gif").convert()
-        self.plat1 = pygame.image.load("Level/hundredbar.gif").convert()
-        self.plat2 = pygame.image.load("Level/hundredbar.gif").convert()
-        # self.shortPlat1 = pygame.image.load("Level/fiftybar.gif").convert()
-        # self.shortPlat2 = pygame.image.load("Level/fiftybar.gif").convert()
-        # Platform Rectangles
-        self.longPlatRect = self.longPlat.get_rect(center=(self.width/2, 7*self.height/8))
-        self.plat1Rect = self.plat1.get_rect(center=(self.width/4, 2*self.height/3))
-        self.plat2Rect = self.plat2.get_rect(center=(self.width - self.width/4, 2*self.height/3))
+        # Create the stage
+        self.centerPlat = Platform.Platform("Level/2hundredbar.gif",
+                                            center=(self.width/2, 7*self.height/8))
+        self.leftPlat = Platform.Platform("Level/hundredbar.gif",
+                                          center=(self.width/4, 3*self.height/4))
+        self.rightPlat = Platform.Platform("Level/hundredbar.gif",
+                                           center=(self.width - self.width/4, 3*self.height/4))
+        self.stage = Stage.Stage("sounds/fight.mp3", "Level/Scene.jpg", self.width, self.height,
+                                 self.centerPlat, self.leftPlat, self.rightPlat)
+        # Player's current image
+        self.image1Count = 0
+        # Opponent's current image
+        self.image2Count = 0
+        # The background of the game
+        self.back = self.stage.getLevel()
+        # The bounds of the game screen
+        self.backRect = self.stage.getLevelRect()
         
         """
             Set up HP boxes and health
@@ -78,7 +81,7 @@ class GameClient:
         self.p1Shot = pygame.image.load("CarverSprite/CarverShot.gif").convert()
         self.p1ShotRect = self.p1Shot.get_rect(center=(-50,-50))
         self.p1Melee = 0 
-        self.p1ShotSpeed = [0,0]
+        self.p1ShotSpeed = [0, 0]
 
         # First render
         self.__initialRender()
@@ -91,15 +94,22 @@ class GameClient:
         self.keys = None
 
     """
+        Create the game stage
+    """
+    def createStage(self):
+        #TODO
+        return
+
+    """
         Draw the first display and both characters
     """
     def __initialRender(self):
         self.screen.blit(self.back, self.backRect)
         self.screen.blit(self.player.getCurrentImage(), self.player.getHitBox())
         self.screen.blit(self.opponent.getCurrentImage(), self.opponent.getHitBox())
-        self.screen.blit(self.longPlat, self.longPlatRect)
-        self.screen.blit(self.plat1, self.plat1Rect)
-        self.screen.blit(self.plat2, self.plat2Rect)
+        self.screen.blit(self.centerPlat.getPlat(), self.centerPlat.getRect())
+        self.screen.blit(self.leftPlat.getPlat(), self.leftPlat.getRect())
+        self.screen.blit(self.rightPlat.getPlat(), self.rightPlat.getRect())
         pygame.display.flip()
 
     """
@@ -158,9 +168,9 @@ class GameClient:
         self.opponent.setHitBox(self.opponent.getHitBox().move(self.opponent.getSpeed()))
         self.screen.fill(self.black)
         self.screen.blit(self.back, self.backRect)
-        self.screen.blit(self.longPlat, self.longPlatRect)
-        self.screen.blit(self.plat1, self.plat1Rect)
-        self.screen.blit(self.plat2, self.plat2Rect)
+        self.screen.blit(self.centerPlat.getPlat(), self.centerPlat.getRect())
+        self.screen.blit(self.leftPlat.getPlat(), self.leftPlat.getRect())
+        self.screen.blit(self.rightPlat.getPlat(), self.rightPlat.getRect())
         #self.screen.blit(self.player1, self.player1Rect)
         #self.screen.blit(self.player2, self.player2Rect)
         self.screen.blit(self.p1Shot, self.p1ShotRect)
@@ -263,7 +273,7 @@ class GameClient:
             Collision avoidance
         """
         if self.player.getHitBox().bottom + self.player.getSpeed()[1] > 585 or \
-           self.onPlatform(self.player.getHitBox()):
+           self.onPlatform(self.player.getHitBox(), self.player):
             self.onPlat = 1
             self.player.setPyfighterY(0)
             self.jump1Max = 0            
@@ -281,29 +291,32 @@ class GameClient:
         
         @param  playerRect  The Rect to check
     """        
-    def onPlatform(self, playerRect):
+    def onPlatform(self, playerRect, player):
         onPlat = False
+        onPlat = self.centerPlat.checkStanding(player)
+        onPlat = self.leftPlat.checkStanding(player)
+        onPlat = self.rightPlat.checkStanding(player)
         
         # Check if the player is on top of the 200 long platform
-        if playerRect.bottom + self.player.getSpeed()[1] > self.longPlatRect.top and \
-        playerRect.left < self.longPlatRect.right and \
-        playerRect.right > self.longPlatRect.left and \
-        playerRect.top + playerRect.height < self.longPlatRect.top:
-            onPlat = True
+        #if playerRect.bottom + self.player.getSpeed()[1] > self.longPlatRect.top and \
+        #playerRect.left < self.longPlatRect.right and \
+        #playerRect.right > self.longPlatRect.left and \
+        #playerRect.top + playerRect.height < self.longPlatRect.top:
+        #    onPlat = True
         
         # Check if the player is on top of the left 100 long platform
-        if playerRect.bottom + self.player.getSpeed()[1] < self.plat1Rect.top and \
-        playerRect.left < self.plat1Rect.right and \
-        playerRect.right > self.plat1Rect.left and \
-        playerRect.top + playerRect.height > self.plat1Rect.top: 
-            onPlat = True
+        #if playerRect.bottom + self.player.getSpeed()[1] < self.plat1Rect.top and \
+        #playerRect.left < self.plat1Rect.right and \
+        #playerRect.right > self.plat1Rect.left and \
+        #playerRect.top + playerRect.height > self.plat1Rect.top:
+        #    onPlat = True
 
         # Check if the player is on top of the right 100 long platform
-        if playerRect.bottom + self.player.getSpeed()[1] < self.plat2Rect.top and \
-        playerRect.left < self.plat2Rect.right and \
-        playerRect.right > self.plat2Rect.left and \
-        playerRect.top + playerRect.height < self.plat2Rect.top:
-            onPlat = True
+        #if playerRect.bottom + self.player.getSpeed()[1] < self.plat2Rect.top and \
+        #playerRect.left < self.plat2Rect.right and \
+        #playerRect.right > self.plat2Rect.left and \
+        #playerRect.top + playerRect.height < self.plat2Rect.top:
+        #    onPlat = True
             
         return onPlat        
         

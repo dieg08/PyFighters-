@@ -17,12 +17,11 @@ class Platform:
         @:param     centerx     The x coordinate of the center of the platform
         @:param     centery     The y coordinate of the center of the platform
     """
-    def __init__(self, string, centerx, centery):
+    def __init__(self, string, center):
         # Set the image for the platform
         self.plat = pygame.image.load(string).convert()
         # Set a hit box around the platform
-        self.platRect = self.longPlat.get_rect(center=(centerx, centery))
-
+        self.platRect = self.plat.get_rect(center=center)
 
     """
         Get the platform image

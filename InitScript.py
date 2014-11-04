@@ -48,7 +48,7 @@ def main(socket):
                 client.jump1Double = client.jump1Double + 1
                 keypressed = pygame.key.name(event.key)
                 if keypressed == pygame.key.name(pygame.K_SPACE):
-                    client.jump1Peak = client.player1Rect.top - 100
+                    client.jump1Peak = client.player.getHitBox().top - 100
                     print client.jump1Peak
             client.keys = pygame.key.get_pressed()
             keysP = pygame.key.get_pressed()
