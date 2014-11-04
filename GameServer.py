@@ -7,7 +7,7 @@ class GameServer(object):
     #creates a GameServer, initializes it, 
     #and then starts listening for connections
     
-    def main():
+    def main(self):
         #The player
         server = GameServer.GameServer()
         server._init_()
@@ -80,9 +80,9 @@ class GameServer(object):
     def send(self, conn, number):
         message = None
         if number == 1:
-            message = send2.get()
+            message = self.send2.get()
         elif number == 2:
-            message = send1.get()
+            message = self.send1.get()
         packet = json.dumps(message)
         try:
             conn.send(packet)
@@ -103,7 +103,7 @@ class GameServer(object):
 
     #closse the connection and shuts down server
     def close(self):
-        conn.close()
-        s.close()
+        self.conn.close()
+        self.s.close()
     
     if __name__ == '__main__': main()

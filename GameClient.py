@@ -112,6 +112,7 @@ class GameClient:
         self.screen.blit(self.rightPlat.getPlat(), self.rightPlat.getRect())
         pygame.display.flip()
 
+
     """
         Handles the redrawing of the sprites and the stage, as well as
         the animations.
