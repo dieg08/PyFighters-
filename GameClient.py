@@ -371,3 +371,21 @@ class GameClient:
     def ifWin(self):
         if self.whoWins != 0:
             return self.whoWins
+
+    """
+        Get the keys pressed
+    """
+    def getKeys(self):
+        return self.keys
+
+    """
+        Get the local player's Pyfighter
+    """
+    def getPlayer(self):
+        return self.player
+
+    """
+        Get the opponent's Pyfighter
+    """
+    def getOpponent(self):
+        return self.opponent
