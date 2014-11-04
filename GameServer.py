@@ -1,4 +1,4 @@
-import socket, sys, json, Queue, GameServer, thread 
+import socket, sys, json, Queue, GameServer, threading
 """
     A server that hosts a game between two clients in Pyfighters
 """
@@ -12,8 +12,7 @@ class GameServer(object):
         server = GameServer.GameServer()
         server._init_()
         while 1:
-            conn = server.listen()
-            server.sendNumber(conn, server.getNumber())
+            server.listen()
     
     #initializes the GameServer
     def _init_(self):
@@ -39,13 +38,17 @@ class GameServer(object):
 
     #method that listens for incoming connections
     def listen(self):
-        status = None
+        status = 1
         self.s.listen(2)
         conn, addr = self.s.accept()
-        print "It get's here"
+        t = threading.Thread(target=self.handle_connection, args=(conn, status,))
+        t.start()
+
+    #loops until there is no longer a connection
+    def handle_connection(self, conn, status):
         while 1:
             # wait to accept a connection - blocking call 
-            print 'connected with '+ addr[0] + ':' + str(addr[1])
+            #print 'connected with '+ addr[0] + ':' + str(addr[1])
             data = conn.recv(4096)
             reply = 'Received: ' + data
             print reply 
@@ -60,7 +63,10 @@ class GameServer(object):
             print 'x position: ' + str(array[1])
             print 'y position: ' + str(array[2])
             print 'buttons pressed: ' + str(array[3])
-            return conn
+            #thread.start_new_thread(self.sendNumber(conn, self.getNumber()), 0)
+            self.sendNumber(conn, self.getNumber())
+   
+        
 
     #sends messages back to the clients
     def sendNumber(self, conn, number):

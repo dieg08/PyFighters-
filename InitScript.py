@@ -19,7 +19,6 @@ def main(socket):
     #Create a game client
     client = GameClient.GameClient()
     #Initialize the connection with the server
-    #s = init()
     s = socket
     #Send a mesage to the server (broken)
     send(s, 0, 0, 0)
