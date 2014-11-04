@@ -109,8 +109,8 @@ class Pyfighter:
     """
         Move the hit box
     """
-    def setHitBox(self, box):
-        self.hitBox = box
+    def setHitBox(self, center):
+        self.hitBox.center = center
 
     """
         Set the face of the Pyfighter

@@ -20,7 +20,7 @@ class GameClient:
         Creates a game client and initializes all of the items necessary to
         play the game.
     """
-    def __init__(self):
+    def __init__(self, playerNum):
         # Black color
         self.black = 0, 0, 0
         # Set screen dimensions
@@ -32,9 +32,12 @@ class GameClient:
         # Set the screen size
         self.screen = pygame.display.set_mode((self.width, self.height), pygame.RESIZABLE)
         # Initialize Pyfighters
-        self.player = Pyfighter.Pyfighter(1, "Carver")
-        self.opponent = Pyfighter.Pyfighter(2, "Orc")
-
+        if playerNum is 1:
+            self.player = Pyfighter.Pyfighter(1, "Carver")
+            self.opponent = Pyfighter.Pyfighter(2, "Orc")
+        elif playerNum is 2:
+            self.player = Pyfighter.Pyfighter(2, "Orc")
+            self.opponent = Pyfighter.Pyfighter(1, "Carver")
         # Create the stage
         self.centerPlat = Platform.Platform("Level/2hundredbar.gif",
                                             center=(self.width/2, 7*self.height/8))
@@ -187,27 +190,9 @@ class GameClient:
     """
     def move(self):
         # Perform possible player movements
-        self.__movePlayer()
-
-        """
-            Player 2 Movement
-            Controls:
-                Left arrow  = Left
-                Right arrow = Right
-                (Jump Not Implemented)
-        """
-        if self.keys[pygame.K_RIGHT]:
-            self.opponent.setPyfighterX(3.5)
-            if self.opponent.getFace() == "left":
-                self.opponent.setFace("right")
-                self.opponent.setCurrentImage(pygame.transform.flip(self.opponent.getCurrentImage(), 1, 0))
-        if self.keys[pygame.K_LEFT]:
-            self.opponent.setPyfighterX(-3.5)
-            if self.opponent.getFace() == "right":
-                self.opponent.setFace("left")
-                self.opponent.setCurrentImage(pygame.transform.flip(self.opponent.getCurrentImage(), 1, 0))
-        if not self.keys[pygame.K_RIGHT] and not self.keys[pygame.K_LEFT]:
-            self.opponent.setPyfighterX(0)
+        self.__movePlayer(self.player)
+        # Move the online opponent
+        self.__moveOpponent(self.opponent)
 
         # Prevent moving through walls
         self.__walled(self.player)
@@ -225,7 +210,7 @@ class GameClient:
         D           = Right
         Spacebar    = Jump (Double Jump Enabled on rise, not fall)
     """
-    def __movePlayer(self):
+    def __movePlayer(self, player):
         if self.keys[pygame.K_d]:
             self.player.setPyfighterX(3.5)
             if self.player.getFace() == "left":
@@ -247,12 +232,22 @@ class GameClient:
             self.player.setPyfighterX(0)
 
     """
-        Move the opponent based on the information from the server
+        Move the opponent based on the information from the server/AI controller
+
+        @param  player  The player to move
+        @param  center  The center of the hitbox of the opponent
     """
-    def __moveOnlineOpponent(self):
-        #TODO
+    def __moveOpponent(self, player, center):
+        player.setHitBox(center)
+
+    """
+        Check for opponent attacks
+
+        @param opponent The opponent
+    """
+    def opponentAttack(self, player):
         return
-    
+
     """
         Checks for jumping and then sets the y coordinate of the player's speed
         to negative, causing it to rise.
@@ -294,9 +289,12 @@ class GameClient:
     """        
     def onPlatform(self, playerRect, player):
         onPlat = False
-        onPlat = self.centerPlat.checkStanding(player)
-        onPlat = self.leftPlat.checkStanding(player)
-        onPlat = self.rightPlat.checkStanding(player)
+        if not onPlat:
+            onPlat = self.centerPlat.checkStanding(player)
+        elif not onPlat:
+            onPlat = self.leftPlat.checkStanding(player)
+        else:
+            onPlat = self.rightPlat.checkStanding(player)
         
         # Check if the player is on top of the 200 long platform
         #if playerRect.bottom + self.player.getSpeed()[1] > self.longPlatRect.top and \
