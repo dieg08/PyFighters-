@@ -13,27 +13,26 @@ The Initializing script for the game
 """
     Play the game
 """
-player = 3
 
 def main(socket):
-    #Create a game client
-    client = GameClient.GameClient()
+    player = 3
     #Initialize the connection with the server
     s = socket
     #Send a mesage to the server (broken)
-    send(s, 0, 0, 0)
+    send(s, player, None)
     #Catch a reply from the server, will contain the player
     reply = s.recv(1024)
     #The player number for this client
     player = reply
+    #Create a game client
+    client = GameClient.GameClient(player)
     #Print the player number (test)
     print "Player: " + str(player)
     #Parameters of the message
-    x = None
-    y = None 
+    center = None 
     keysp = None
     #Message that will be sent
-    message = [x, y, keysp]
+    message = None
     #Start the game
     while client.ifWin() < 1:
         """
@@ -50,9 +49,19 @@ def main(socket):
                     client.jump1Peak = client.player.getHitBox().top - 100
                     print client.jump1Peak
             client.keys = pygame.key.get_pressed()
-            keysP = pygame.key.get_pressed()
+            opponent = client.getOpponent()
+            hitbox = opponent.getHitBox()
+            center = hitbox.center
+            #keysP = pygame.key.get_pressed()
+            message = center
+        # sends packet for movement
+        send(s, player, message)
+        # receive packet
+        data = s.recv(1024)
+        reply = json.loads(data)
+        print str(reply)
         # Check for movement
-        client.move()
+        client.move(reply[1])
         # Check for jumping
         client.jump()
         # Render the screen
@@ -68,13 +77,13 @@ def main(socket):
 """
     Send information to the server
 """
-def send(s, x, y, pressed):
+def send(s, player, msg):
     #Package to hold information to send to the server
-    message = [player, x, y, pressed]
+    message = [player, msg]
     packet = json.dumps(message)
     #Try sending the message and catch any errors
     try:
-        s.sendall(packet)
+        s.send(packet)
     except socket.error:
         print 'Send failed'
         sys.exit

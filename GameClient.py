@@ -32,6 +32,8 @@ class GameClient:
         # Set the screen size
         self.screen = pygame.display.set_mode((self.width, self.height), pygame.RESIZABLE)
         # Initialize Pyfighters
+        self.player = Pyfighter.Pyfighter(1, "Carver")
+        self.opponent = Pyfighter.Pyfighter(2, "Orc")
         if playerNum is 1:
             self.player = Pyfighter.Pyfighter(1, "Carver")
             self.opponent = Pyfighter.Pyfighter(2, "Orc")
@@ -168,8 +170,9 @@ class GameClient:
     def __blit(self):
         # Draw
         self.p1ShotRect = self.p1ShotRect.move(self.p1ShotSpeed)
-        self.player.setHitBox(self.player.getHitBox().move(self.player.getSpeed()))
-        self.opponent.setHitBox(self.opponent.getHitBox().move(self.opponent.getSpeed()))
+        #self.player.setHitBox(self.player.getHitBox().move(self.player.getSpeed()))
+        print str(self.player.getHitBox().move(self.player.getSpeed().center))
+        #self.opponent.setHitBox(self.opponent.getHitBox().move(self.opponent.getSpeed()))
         self.screen.fill(self.black)
         self.screen.blit(self.back, self.backRect)
         self.screen.blit(self.centerPlat.getPlat(), self.centerPlat.getRect())
@@ -188,11 +191,11 @@ class GameClient:
         Moves players that are holding the left or right keys and changes
         faced direction when necessary.
     """
-    def move(self):
+    def move(self, oppCenter):
         # Perform possible player movements
         self.__movePlayer(self.player)
         # Move the online opponent
-        self.__moveOpponent(self.opponent)
+        self.__moveOpponent(self.opponent, oppCenter)
 
         # Prevent moving through walls
         self.__walled(self.player)
@@ -238,7 +241,11 @@ class GameClient:
         @param  center  The center of the hitbox of the opponent
     """
     def __moveOpponent(self, player, center):
-        player.setHitBox(center)
+        print center
+        x = center[0]
+        y = center[1]
+        print "x = " + str(x) + ", y = " + str(y) 
+        player.setHitBox((x, y))
 
     """
         Check for opponent attacks

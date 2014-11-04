@@ -7,7 +7,7 @@ class GameServer(object):
     #creates a GameServer, initializes it, 
     #and then starts listening for connections
     
-    def main(self):
+    def main():
         #The player
         server = GameServer.GameServer()
         server._init_()
@@ -46,6 +46,7 @@ class GameServer(object):
 
     #loops until there is no longer a connection
     def handle_connection(self, conn, status):
+        i = 1
         while 1:
             # wait to accept a connection - blocking call 
             #print 'connected with '+ addr[0] + ':' + str(addr[1])
@@ -53,19 +54,19 @@ class GameServer(object):
             reply = 'Received: ' + data
             print reply 
             array = json.loads(data)
-            if array[0] == 1:
+            if array[0] == '1':
                 self.send1.put(array)
                 print "Put " + str(array[0]) + " in queue 1"
-            elif array[0] == 2:
+            elif array[0] == '2':
                 self.send2.put(array)
                 print "Put " + str(array[0]) + " in queue 2"
             print 'player ' + str(array[0]) 
-            print 'x position: ' + str(array[1])
-            print 'y position: ' + str(array[2])
-            print 'buttons pressed: ' + str(array[3])
             #thread.start_new_thread(self.sendNumber(conn, self.getNumber()), 0)
-            self.sendNumber(conn, self.getNumber())
-   
+            if i == 1:
+                self.sendNumber(conn, self.getNumber())
+                i = i + 1
+            else:
+                self.send(conn, array[0])
         
 
     #sends messages back to the clients
@@ -79,13 +80,16 @@ class GameServer(object):
 
     def send(self, conn, number):
         message = None
-        if number == 1:
+        if number == '1':
+            print 'it gets here'
             message = self.send2.get()
-        elif number == 2:
+        elif number == '2':
+            print 'it gets here'
             message = self.send1.get()
         packet = json.dumps(message)
         try:
-            conn.send(packet)
+            if packet != None:
+                conn.send(packet)
         except socket.error:
             print 'Send failed'
             sys.exit()
