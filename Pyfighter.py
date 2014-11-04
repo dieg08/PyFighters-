@@ -22,6 +22,8 @@ class Pyfighter:
             self.hitBox = self.currentImage.get_rect(bottom=585, left=100)
             self.face = "right"
         elif player == 2:
+            # Flip the image for the second player
+            self.currentImage = pygame.transform.flip(self.currentImage, True, False)
             self.hitBox = self.currentImage.get_rect(bottom=585, left=700)
             self.face = "left"
         # Pyfighter HP
