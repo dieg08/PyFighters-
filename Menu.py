@@ -2,7 +2,6 @@ import pygame, sys, os, socket, errno, random, subprocess, time, InitScript, Set
 from pygame.locals import *
 from socket import error as socket_error 
 import Tkinter, tkMessageBox, Menu 
-
 class MenuItem (pygame.font.Font):
     '''
     The Menu Item should be derived from the pygame Font class

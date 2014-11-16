@@ -61,7 +61,6 @@ class GameServer(object):
                 self.send2.put(array)
                 print "Put " + str(array[0]) + " in queue 2"
             print 'player ' + str(array[0]) 
-            #thread.start_new_thread(self.sendNumber(conn, self.getNumber()), 0)
             if i == 1:
                 self.sendNumber(conn, self.getNumber())
                 i = i + 1
@@ -81,10 +80,8 @@ class GameServer(object):
     def send(self, conn, number):
         message = None
         if number == '1':
-            print 'it gets here'
             message = self.send2.get()
         elif number == '2':
-            print 'it gets here'
             message = self.send1.get()
         packet = json.dumps(message)
         try:

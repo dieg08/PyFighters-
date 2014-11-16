@@ -49,7 +49,7 @@ def main(socket):
                     client.jump1Peak = client.player.getHitBox().top - 100
                     print client.jump1Peak
             client.keys = pygame.key.get_pressed()
-            opponent = client.getOpponent()
+            opponent = client.getPlayer()
             hitbox = opponent.getHitBox()
             center = hitbox.center
             #keysP = pygame.key.get_pressed()

@@ -14,7 +14,6 @@ game.
 @author: Diego Gonzalez
 """
 
-
 class GameClient:
     """
         Creates a game client and initializes all of the items necessary to
@@ -170,9 +169,8 @@ class GameClient:
     def __blit(self):
         # Draw
         self.p1ShotRect = self.p1ShotRect.move(self.p1ShotSpeed)
-        #self.player.setHitBox(self.player.getHitBox().move(self.player.getSpeed()))
-        print str(self.player.getHitBox().move(self.player.getSpeed().center))
-        #self.opponent.setHitBox(self.opponent.getHitBox().move(self.opponent.getSpeed()))
+        self.player.setHitBox(self.player.getHitBox().move(self.player.getSpeed()).center)
+        self.opponent.setHitBox(self.opponent.getHitBox().move(self.opponent.getSpeed()).center)
         self.screen.fill(self.black)
         self.screen.blit(self.back, self.backRect)
         self.screen.blit(self.centerPlat.getPlat(), self.centerPlat.getRect())
