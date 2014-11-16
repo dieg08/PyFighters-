@@ -49,17 +49,16 @@ def main(socket):
                     client.jump1Peak = client.player.getHitBox().top - 100
                     print client.jump1Peak
             client.keys = pygame.key.get_pressed()
-            opponent = client.getPlayer()
-            hitbox = opponent.getHitBox()
-            center = hitbox.center
-            #keysP = pygame.key.get_pressed()
-            message = center
+        opponent = client.getPlayer()
+        hitbox = opponent.getHitBox()
+        center = hitbox.center
+        #keysP = pygame.key.get_pressed()
+        message = center
         # sends packet for movement
         send(s, player, message)
         # receive packet
         data = s.recv(1024)
         reply = json.loads(data)
-        print str(reply)
         # Check for movement
         client.move(reply[1])
         # Check for jumping
