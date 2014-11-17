@@ -102,7 +102,7 @@ class GameServer(object):
             self.NUMBER = 1
         return message
 
-    #closse the connection and shuts down server
+    #close the connection and shuts down server
     def close(self):
         self.conn.close()
         self.s.close()

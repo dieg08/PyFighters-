@@ -19,7 +19,7 @@ def main(socket):
     #Initialize the connection with the server
     s = socket
     #Send a mesage to the server (broken)
-    send(s, player, None)
+    send(s, player, None, None)
     #Catch a reply from the server, will contain the player
     reply = s.recv(1024)
     #The player number for this client
@@ -52,15 +52,17 @@ def main(socket):
         opponent = client.getPlayer()
         hitbox = opponent.getHitBox()
         center = hitbox.center
-        #keysP = pygame.key.get_pressed()
+        keysp = client.getKeys()
         message = center
         # sends packet for movement
-        send(s, player, message)
+        send(s, player, message, keysp)
         # receive packet
         data = s.recv(1024)
         reply = json.loads(data)
+        print str(reply)
         # Check for movement
         client.move(reply[1])
+        #client.keys = reply[2]
         # Check for jumping
         client.jump()
         # Render the screen
@@ -76,9 +78,9 @@ def main(socket):
 """
     Send information to the server
 """
-def send(s, player, msg):
+def send(s, player, msg, keys):
     #Package to hold information to send to the server
-    message = [player, msg]
+    message = [player, msg, keys]
     packet = json.dumps(message)
     #Try sending the message and catch any errors
     try:
