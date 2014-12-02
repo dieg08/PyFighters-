@@ -19,7 +19,7 @@ class GameClient:
         Creates a game client and initializes all of the items necessary to
         play the game.
     """
-    def __init__(self, playerNum):
+    def __init__(self, playerNum, char):
         # Black color
         self.black = 0, 0, 0
         # Set screen dimensions

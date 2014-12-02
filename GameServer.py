@@ -3,10 +3,11 @@ import socket, sys, json, Queue, GameServer, threading
     A server that hosts a game between two clients in Pyfighters
 """
 class GameServer(object): 
+    """
+    creates a GameServer, initializes it, 
+    and then starts listening for connections
+    """
 
-    #creates a GameServer, initializes it, 
-    #and then starts listening for connections
-    
     def main():
         #The player
         server = GameServer.GameServer()
@@ -24,6 +25,11 @@ class GameServer(object):
         self.send2 = Queue.Queue()
         #player number assignment
         self.NUMBER = 1
+        #variable to hold what character a player is
+        self.one = None
+        self.two = None
+        #a variable to see how many threads there are
+        self.thread_count = 0
         #Create the socket for a connection
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         print 'Socket Created'
@@ -50,37 +56,67 @@ class GameServer(object):
 
     #loops until there is no longer a connection
     def handle_connection(self, conn, status):
-        i = 1
-        while 1:
+        state = 1
+        num = self.getNumber()
+        self.thread_count = self.thread_count + 1
+        while True:
             # wait to accept a connection - blocking call 
-            data = conn.recv(4096)
-            reply = 'Received: ' + data
-            print reply 
-            if reply == 'Done':
-                close()
-            try:
-                array = json.loads(data)
-                if array[0] == '1':
-                    self.send1.put(array)
-                    print "Put " + str(array[0]) + " in queue 1"
-                elif array[0] == '2':
-                    self.send2.put(array)
-                    print "Put " + str(array[0]) + " in queue 2"
-                print 'player ' + str(array[0]) 
-                if i == 1:
-                    self.sendNumber(conn, self.getNumber())
-                    i = i + 1
-                else:
+            if self.thread_count > 1:
+                if state == 1:
+                    print "state 1"
+                    player = conn.recv(1024)
+                    #if num == 1:
+                        #self.one = array[3]
+                    #else:
+                        #self.two = array[3]
+                    self.sendNumber(conn, num)
+                    char = None
+                    if num == '1':
+                        self.one = conn.recv(1024)
+                        print "it get's here 1"
+                    else:
+                        self.two = conn.recv(1024)
+                        print "it get's here 2"
+                    if num == 1:
+                        char = self.two
+                    else:
+                        char = self.one
+                    if char != None:
+                        self.sendChar(conn, char)
+                        state = 2
+                data = conn.recv(4096)
+                reply = 'Received: ' + data
+                print reply 
+                if reply == 'Done':
+                    close()
+                try:
+                    array = json.loads(data)
+                    if array[0] == '1':
+                        self.send1.put(array)
+                        print "Put " + str(array[0]) + " in queue 1"
+                    elif array[0] == '2':
+                        self.send2.put(array)
+                        print "Put " + str(array[0]) + " in queue 2"
+                    print 'player ' + str(array[0]) 
                     self.send(conn, array[0])
-            except ValueError:
-                print "Decoding JSON has failed"
-                self.s.close()
+                except ValueError:
+                    print "Decoding JSON has failed"
+                    sys.exit(0)
 
     #sends messages back to the clients
     def sendNumber(self, conn, number):
         message = number
         try:
             conn.send(message)
+        except socket.error:
+            print 'Send failed'
+            sys.exit()
+
+    def sendChar(self, conn, char):
+        message = char
+        try:
+            if message != None:
+                conn.send(message)
         except socket.error:
             print 'Send failed'
             sys.exit()

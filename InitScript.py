@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import GameClient, pygame, sys, socket, WinScreen, json, errno, CharSelect 
+import GameClient, pygame, sys, socket, WinScreen, json, errno, CharSelect, time 
 from socket import error as socket_error
 """
 Created on Sun Mar 30 16:05:48 2014
@@ -20,21 +20,31 @@ def main(socket, character):
     #Initialize the connection with the server
     s = socket
     #Send a mesage to the server (broken)
-    send(s, player, None, None)
+    init_send(s, player)
     #Catch a reply from the server, will contain the player
     reply = s.recv(1024)
     #The player number for this client
     player = reply
+    print "player: " + player
+    #send the character
+    char_send(s, character)
+    #THe parameter to be passed to game client
+    reply = s.recv(1024)
+    print "it get's here"
+    parameter = [character, reply]
     #Create a game client
-    client = GameClient.GameClient(player)
+    client = GameClient.GameClient(player, parameter)
     #Print the player number (test)
     print "Player: " + str(player)
+    #print the opponents character (test)
+    print "Opponent: " + reply
     #Parameters of the message
     center = None 
     keysp = None
     #Message that will be sent
     message = None
     #Start the game
+    #time.sleep(3)
     while client.ifWin() < 1:
         """
             Event Handling
@@ -59,8 +69,8 @@ def main(socket, character):
         send(s, player, message, keysp)
         # receive packet
         data = s.recv(1024)
-        reply = json.loads(data)
         print str(reply)
+        reply = json.loads(data)
         # Check for movement
         if reply != None:
             client.move(reply[1])
@@ -91,6 +101,27 @@ def send(s, player, msg, keys):
     except socket.error:
         print 'Send failed'
         sys.exit
+
+def init_send(s, player):
+    #Package to hold information to send to the server
+    message = str(player)
+    #Try sending the message and catch any errors
+    try:
+        s.send(message)
+    except socket.error:
+        print 'Send failed'
+        sys.exit
+
+def char_send(s, char):
+    #Package to hold information to send to the server
+    message = char
+    #Try sending the message and catch any errors
+    try:
+        s.send(message)
+    except socket.error:
+        print 'Send failed'
+        sys.exit
+    
 
 def end(s):
     message = "Done"
