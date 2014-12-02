@@ -33,7 +33,7 @@ def main(socket, character):
     print "it get's here"
     parameter = [character, reply]
     #Create a game client
-    client = GameClient.GameClient(player, parameter)
+    client = GameClient.GameClient(int(player), parameter)
     #Print the player number (test)
     print "Player: " + str(player)
     #print the opponents character (test)

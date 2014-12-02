@@ -14,12 +14,13 @@ game.
 @author: Diego Gonzalez
 """
 
+
 class GameClient:
     """
         Creates a game client and initializes all of the items necessary to
         play the game.
     """
-    def __init__(self, playerNum, char):
+    def __init__(self, playerNum, character):
         # Black color
         self.black = 0, 0, 0
         # Set screen dimensions
@@ -30,26 +31,11 @@ class GameClient:
         self.screen = pygame.display.get_surface()
         # Set the screen size
         self.screen = pygame.display.set_mode((self.width, self.height), pygame.RESIZABLE)
-        # Initialize Pyfighters
-        self.player = Pyfighter.Pyfighter(1, "Carver")
-        if self.player == None:
-            print "Player is Null"
-        self.opponent = Pyfighter.Pyfighter(2, "Orc")
-        if playerNum is 1:
-            self.player = Pyfighter.Pyfighter(1, "Carver")
-            self.opponent = Pyfighter.Pyfighter(2, "Orc")
-        elif playerNum is 2:
-            self.player = Pyfighter.Pyfighter(2, "Orc")
-            self.opponent = Pyfighter.Pyfighter(1, "Carver")
+        # Initialize the Pyfighters
+        print character[1]
+        self.__initCharacters(playerNum, character)
         # Create the stage
-        self.centerPlat = Platform.Platform("Level/2hundredbar.gif",
-                                            center=(self.width/2, 7*self.height/8))
-        self.leftPlat = Platform.Platform("Level/hundredbar.gif",
-                                          center=(self.width/4, 3*self.height/4))
-        self.rightPlat = Platform.Platform("Level/hundredbar.gif",
-                                           center=(self.width - self.width/4, 3*self.height/4))
-        self.stage = Stage.Stage("sounds/fight.mp3", "Level/Scene.jpg", self.width, self.height,
-                                 self.centerPlat, self.leftPlat, self.rightPlat)
+        self.__createStage()
         # Player's current image
         self.image1Count = 0
         # Opponent's current image
@@ -58,53 +44,72 @@ class GameClient:
         self.back = self.stage.getLevel()
         # The bounds of the game screen
         self.backRect = self.stage.getLevelRect()
-        
-        """
-            Set up HP boxes and health
-        """
+        # Set up HP bars and health
+        self.__createHpBars()
+        self.p1HP = 130
+        self.p2HP = 130
+        # Initialize jump counters for the player
+        self.__initJumpCounters()
+        # Initialize attack counters
+        self.__initAttackCounters(self.playerChar)
+        # First render
+        self.__initialRender()
+        # Victory conditions
+        self.whoWins = 0
+        # Initialize keys pressed
+        self.keys = None
+
+    """
+        Create the stage
+    """
+    def __createStage(self):
+        self.centerPlat = Platform.Platform("Level/2hundredbar.gif",
+                                            center=(self.width/2, 7*self.height/8))
+        self.leftPlat = Platform.Platform("Level/hundredbar.gif",
+                                          center=(self.width/4, 3*self.height/4))
+        self.rightPlat = Platform.Platform("Level/hundredbar.gif",
+                                           center=(self.width - self.width/4, 3*self.height/4))
+        self.stage = Stage.Stage("sounds/fight.mp3", "Level/Scene.jpg", self.width, self.height,
+                                 self.centerPlat, self.leftPlat, self.rightPlat)
+
+    """
+        Create the HP bars on the screen
+    """
+    def __createHpBars(self):
         self.player1HP = pygame.image.load("CarverHP/CarverHP13.gif").convert()
         self.p1HPRect = self.player1HP.get_rect(right=(self.width/8), top=(self.height/10))
         self.player2HP = pygame.image.load("OrcHP/OrcHP13.gif").convert()
         self.p2HPRect = self.player1HP.get_rect(left=(self.width-(self.width/8)), top=(self.height/10))
-        self.p1HP = 130
-        self.p2HP = 130
-    
-        """
-            Jump counters, if jumpN is ever greater than 5, then jumpNMax = 1
-        """
+
+    """
+        Initialize Pyfighters
+    """
+    def __initCharacters(self, playerNum, character):
+        self.playerChar = character[0]
+        self.opponentChar = character[1]
+        self.player = None
+        self.opponent = None
+        if playerNum == 1:
+            self.player = Pyfighter.Pyfighter(playerNum, character[playerNum - 1])
+            self.opponent = Pyfighter.Pyfighter(playerNum, character[playerNum])
+            self.playerChar = character[playerNum - 1]
+            self.opponentChar = character[playerNum]
+        elif playerNum == 2:
+            self.player = Pyfighter.Pyfighter(playerNum, character[playerNum - 1])
+            self.opponent = Pyfighter.Pyfighter(playerNum, character[playerNum - 2])
+            self.playerChar = character[playerNum - 1]
+            self.opponentChar = character[playerNum - 2]
+
+    """
+        Initialize the jump counters for the player
+        Jump counters, if jumpN is ever greater than 5, then jumpNMax = 1
+    """
+    def __initJumpCounters(self):
         self.jump1 = 0
         self.jump1Max = 0
         self.jump1Peak = 0
         self.jump1Double = 0
         self.onPlat = 0
-        
-        """
-            Attack counters
-        """
-        self.p1Shooting = False
-        self.p1ShotDirection = "right"
-        self.p1ShotCount = 0
-        self.p1Shot = pygame.image.load("CarverSprite/CarverShot.gif").convert()
-        self.p1ShotRect = self.p1Shot.get_rect(center=(-50,-50))
-        self.p1Melee = 0 
-        self.p1ShotSpeed = [0, 0]
-
-        # First render
-        self.__initialRender()
-
-        """
-            Victory conditions
-        """
-        self.whoWins = 0
-        
-        self.keys = None
-
-    """
-        Create the game stage
-    """
-    def createStage(self):
-        #TODO
-        return
 
     """
         Draw the first display and both characters
@@ -118,6 +123,20 @@ class GameClient:
         self.screen.blit(self.rightPlat.getPlat(), self.rightPlat.getRect())
         pygame.display.flip()
 
+    """
+        Initialize the attach counters for the player
+    """
+    def __initAttackCounters(self, character):
+        self.p1Shooting = False
+        self.p1ShotDirection = "right"
+        self.p1ShotCount = 0
+        self.p1Shot = pygame.image.load(character + "Sprite/" + character + \
+                                        "Shot.gif").convert()
+        self.p2Shot = pygame.image.load(self.opponentChar + "Sprite/" + \
+                                        self.opponentChar + "Shot.gif").convert()
+        self.p1ShotRect = self.p1Shot.get_rect(center=(-50,-50))
+        self.p1Melee = 0
+        self.p1ShotSpeed = [0, 0]
 
     """
         Handles the redrawing of the sprites and the stage, as well as
@@ -325,9 +344,7 @@ class GameClient:
         #    onPlat = True
             
         return onPlat        
-        
-        
-    
+
     """
         Checks for attacks and creates a Surface and rectangle around the
         Surface for an attack object.
@@ -357,19 +374,36 @@ class GameClient:
             self.p1ShotRect.center = (-50, -50)
             self.p1ShotCount = 0
             self.p1Shooting = False
-        
-        """
-            Check for hits
-        """
-        if self.p1ShotDirection == "right" and self.p1ShotRect.centerx + \
-            self.p1ShotSpeed[0] >= self.opponent.getHitBox().left and \
-            self.p1ShotRect.centerx < self.opponent.getHitBox().right and \
-            self.p1ShotRect.centery < self.opponent.getHitBox().bottom and \
-            self.p1ShotRect.centery > self.opponent.getHitBox().top:
-                self.p2HP = self.p2HP - 5
-                self.p1ShotRect.center = (-50, -50)
-                self.p1ShotSpeed[0] = 0
-                
+
+    """
+        Check for hits
+    """
+    def ifHit(self):
+        if self.p1ShotDirection == "right":
+            if self.p1ShotRect.centerx + self.p1ShotSpeed[0] >= \
+               self.opponent.getHitBox().left:
+                if self.p1ShotRect.centerx < self.opponent.getHitBox().right and \
+                   self.p1ShotRect.centery < self.opponent.getHitBox().bottom and \
+                   self.p1ShotRect.centery > self.opponent.getHitBox().top:
+                    self.p2HP = self.p2HP - 5
+                    self.p1ShotRect.center = (-50, -50)
+                    self.p1ShotSpeed[0] = 0
+
+
+    """
+        Animate opponent based on keys pressed by the opponent
+
+        @param  player      The Pyfighter of the opponent
+        @param  keys        The keys pressed by the oppponent
+    """
+    def __animateOpponent(self, player, keys):
+        return
+
+
+    def __initializePlayerHealth(self):
+        return
+
+
     """
         Checks for a Victory
     """
