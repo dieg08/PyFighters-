@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import GameClient, pygame, sys, socket, WinScreen, json, errno 
+import GameClient, pygame, sys, socket, WinScreen, json, errno, CharSelect 
 from socket import error as socket_error
 """
 Created on Sun Mar 30 16:05:48 2014
@@ -14,7 +14,8 @@ The Initializing script for the game
     Play the game
 """
 
-def main(socket):
+#def main(socket):
+def main(socket, character):
     player = 3
     #Initialize the connection with the server
     s = socket
@@ -61,7 +62,8 @@ def main(socket):
         reply = json.loads(data)
         print str(reply)
         # Check for movement
-        client.move(reply[1])
+        if reply != None:
+            client.move(reply[1])
         #client.keys = reply[2]
         # Check for jumping
         client.jump()
@@ -71,9 +73,10 @@ def main(socket):
         client.attack()
     if client.ifWin() == 1:
         WinScreen.winner("Player 1")
+        end(s)
     elif client.ifWin() == 2:
         WinScreen.winner("Player 2")
-
+        end(s)
 
 """
     Send information to the server
@@ -89,6 +92,13 @@ def send(s, player, msg, keys):
         print 'Send failed'
         sys.exit
 
+def end(s):
+    message = "Done"
+    try:
+        s.send(message)
+    except socket.error:
+        print 'Send Failed'
+        sys.exit
 """
     Call main method when script is run
 """

@@ -32,6 +32,8 @@ class GameClient:
         self.screen = pygame.display.set_mode((self.width, self.height), pygame.RESIZABLE)
         # Initialize Pyfighters
         self.player = Pyfighter.Pyfighter(1, "Carver")
+        if self.player == None:
+            print "Player is Null"
         self.opponent = Pyfighter.Pyfighter(2, "Orc")
         if playerNum is 1:
             self.player = Pyfighter.Pyfighter(1, "Carver")
@@ -167,7 +169,6 @@ class GameClient:
         Draw all objects to the screen
     """
     def __blit(self):
-        print "draw"
         # Draw
         self.p1ShotRect = self.p1ShotRect.move(self.p1ShotSpeed)
         self.player.setHitBox(self.player.getHitBox().move(self.player.getSpeed()).center)
@@ -232,7 +233,6 @@ class GameClient:
             self.jump1Max = self.jump1Max + 1
         if not self.keys[pygame.K_a] and not self.keys[pygame.K_d]:
             self.player.setPyfighterX(0)
-        print "After Move"
 
     """
         Move the opponent based on the information from the server/AI controller

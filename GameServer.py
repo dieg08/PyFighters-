@@ -42,31 +42,39 @@ class GameServer(object):
         self.s.listen(2)
         conn, addr = self.s.accept()
         t = threading.Thread(target=self.handle_connection, args=(conn, status,))
-        t.start()
+        try:
+            t.start()
+        except (KeyboardInterrupt, SystemExit):
+            cleanup_stop_thread()
+            sys.exit()
 
     #loops until there is no longer a connection
     def handle_connection(self, conn, status):
         i = 1
         while 1:
             # wait to accept a connection - blocking call 
-            #print 'connected with '+ addr[0] + ':' + str(addr[1])
             data = conn.recv(4096)
             reply = 'Received: ' + data
             print reply 
-            array = json.loads(data)
-            if array[0] == '1':
-                self.send1.put(array)
-                print "Put " + str(array[0]) + " in queue 1"
-            elif array[0] == '2':
-                self.send2.put(array)
-                print "Put " + str(array[0]) + " in queue 2"
-            print 'player ' + str(array[0]) 
-            if i == 1:
-                self.sendNumber(conn, self.getNumber())
-                i = i + 1
-            else:
-                self.send(conn, array[0])
-        
+            if reply == 'Done':
+                close()
+            try:
+                array = json.loads(data)
+                if array[0] == '1':
+                    self.send1.put(array)
+                    print "Put " + str(array[0]) + " in queue 1"
+                elif array[0] == '2':
+                    self.send2.put(array)
+                    print "Put " + str(array[0]) + " in queue 2"
+                print 'player ' + str(array[0]) 
+                if i == 1:
+                    self.sendNumber(conn, self.getNumber())
+                    i = i + 1
+                else:
+                    self.send(conn, array[0])
+            except ValueError:
+                print "Decoding JSON has failed"
+                self.s.close()
 
     #sends messages back to the clients
     def sendNumber(self, conn, number):
@@ -105,6 +113,6 @@ class GameServer(object):
     #close the connection and shuts down server
     def close(self):
         self.conn.close()
-        self.s.close()
+        #self.s.close()
     
     if __name__ == '__main__': main()

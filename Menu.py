@@ -1,7 +1,8 @@
-import pygame, sys, os, socket, errno, random, subprocess, time, InitScript, Settings, Script
+import pygame, sys, os, socket, errno, random, subprocess, time, InitScript, CharSelect, Settings, Script
 from pygame.locals import *
-from socket import error as socket_error 
-import Tkinter, tkMessageBox, Menu 
+from socket import error as socket_error
+import Tkinter, tkMessageBox, Menu
+
 class MenuItem (pygame.font.Font):
     '''
     The Menu Item should be derived from the pygame Font class
@@ -104,7 +105,7 @@ class Menu:
                     pygame.event.post(menuEvent)
                 curItem = curItem + 1
 
-def socketInit():
+def socketInit():                                                               
     #Server IP and Port num                                                     
     host = '127.0.0.1'                                                          
     port = 6969                                                                 
@@ -126,13 +127,13 @@ def socketInit():
     except socket_error as serr:                                                
         if serr.errno != errno.ECONNREFUSED:                                    
             #not the error we're looking for                                    
-            sys.exit()
+            sys.exit()                                                          
         top = Tkinter.Tk()                                                      
-        B1 = Tkinter.Button(top, text = "Connection Refused", command = popup)           
+        B1 = Tkinter.Button(top, text = "Connection Refused", command = popup)  
         B1.pack()                                                               
         top.mainloop()                                                          
-        main()
-    return s
+        main()                                                             
+    return s   
 
 def popup():                                                                    
     tkMessageBox.showinfo("Warning", "Connection Refused") 
@@ -171,7 +172,10 @@ def main():
                 sys.exit(0)
             elif event.type == Menu.MENUCLICKEDEVENT:    
                 if event.text == "Play PyFighters":
-                    InitScript.main(socketInit())
+                    character = CharSelect.charselect()
+                    print "Just Waiting..."
+                    #time.sleep(3)
+                    InitScript.main(socketInit(), character)
                 elif event.text == "How to play":
                     Settings.settings()
                 elif event.text == "Local Play":
