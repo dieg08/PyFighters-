@@ -172,9 +172,9 @@ def main():
                 sys.exit(0)
             elif event.type == Menu.MENUCLICKEDEVENT:    
                 if event.text == "Play PyFighters":
+                    time.sleep(1)
                     character = CharSelect.charselect()
                     print "Just Waiting..."
-                    #time.sleep(3)
                     InitScript.main(socketInit(), character)
                 elif event.text == "How to play":
                     Settings.settings()

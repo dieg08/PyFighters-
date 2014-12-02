@@ -37,10 +37,11 @@ def charselect():
     twopos.centery = warpos.centery + 100
     waitpos.centerx = textpos.centerx
     waitpos.centery = textpos.centery + 100
+    pygame.event.clear()
     while 1:
         character = None    
-        for event in pygame.event.get():
-            if event.type == pygame.MOUSEBUTTONUP:
+        for ev in pygame.event.get():
+            if ev.type == pygame.MOUSEBUTTONUP:
                 pos = pygame.mouse.get_pos()
                 print str(pos)
                 if orcpos.collidepoint(pos):
@@ -55,7 +56,7 @@ def charselect():
                     pygame.display.flip()
                     time.sleep(3)
                     character = "Carver"
-            elif event.type == pygame.KEYDOWN:
+            elif ev.type == pygame.KEYDOWN:
                 keypressed = pygame.key.name(event.key)
                 if keypressed == pygame.key.name(pygame.K_ESCAPE):
                     sys.exit(0)
