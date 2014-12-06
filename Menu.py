@@ -107,6 +107,8 @@ class Menu:
 
 def socketInit():                                                               
     #Server IP and Port num                                                     
+    #host = 'trantracker.com'                                                          
+    #host = 'agora.cs.wcu.edu'                                                          
     host = '127.0.0.1'                                                          
     port = 6969                                                                 
     player = 1                                                                  

@@ -44,7 +44,6 @@ def main(socket, character):
     #Message that will be sent
     message = None
     #Start the game
-    #time.sleep(3)
     while client.ifWin() < 1:
         """
             Event Handling
@@ -69,18 +68,20 @@ def main(socket, character):
         send(s, player, message, keysp)
         # receive packet
         data = s.recv(1024)
-        print str(reply)
         reply = json.loads(data)
         # Check for movement
-        if reply != None:
+        if client.getKeys() != None:
+            print str(reply[1])
             client.move(reply[1])
         #client.keys = reply[2]
         # Check for jumping
         client.jump()
         # Render the screen
-        client.render()
+        if client.getKeys() != None:
+            client.render()
         # Do attacks if necessary
-        client.attack()
+        if client.getKeys() != None:
+            client.attack()
     if client.ifWin() == 1:
         WinScreen.winner("Player 1")
         end(s)

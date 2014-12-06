@@ -28,6 +28,8 @@ class GameServer(object):
         #variable to hold what character a player is
         self.one = None
         self.two = None
+        #checks to see if both one and two are initialized
+        self.initialized = 0
         #a variable to see how many threads there are
         self.thread_count = 0
         #Create the socket for a connection
@@ -44,10 +46,10 @@ class GameServer(object):
 
     #method that listens for incoming connections
     def listen(self):
-        status = 1
+        state = 1
         self.s.listen(2)
         conn, addr = self.s.accept()
-        t = threading.Thread(target=self.handle_connection, args=(conn, status,))
+        t = threading.Thread(target=self.handle_connection, args=(conn, state,))
         try:
             t.start()
         except (KeyboardInterrupt, SystemExit):
@@ -55,53 +57,54 @@ class GameServer(object):
             sys.exit()
 
     #loops until there is no longer a connection
-    def handle_connection(self, conn, status):
-        state = 1
+    def handle_connection(self, conn, state):
         num = self.getNumber()
         self.thread_count = self.thread_count + 1
+        char = None
+        count = 1
         while True:
-            # wait to accept a connection - blocking call 
-            if self.thread_count > 1:
+            if self.thread_count == 2:
                 if state == 1:
                     print "state 1"
-                    player = conn.recv(1024)
-                    #if num == 1:
-                        #self.one = array[3]
-                    #else:
-                        #self.two = array[3]
-                    self.sendNumber(conn, num)
-                    char = None
-                    if num == '1':
-                        self.one = conn.recv(1024)
-                        print "it get's here 1"
-                    else:
-                        self.two = conn.recv(1024)
-                        print "it get's here 2"
-                    if num == 1:
-                        char = self.two
-                    else:
-                        char = self.one
-                    if char != None:
+                    if self.one == None or self.two == None:
+                        if count == 1:
+                            player = conn.recv(1024)
+                            self.sendNumber(conn, num)
+                            count = 2
+                        if num == '2' and self.one == None:
+                            self.one = conn.recv(1024)
+                            print "it get's here 1"
+                        elif num == '1' and self.two == None:
+                            self.two = conn.recv(1024)
+                            print "it get's here 2"
+                    if self.one != None and self.two != None:
+                        print "Does it get here?"
+                        if num == '1':
+                            char = self.two
+                        else:
+                            char = self.one
                         self.sendChar(conn, char)
                         state = 2
-                data = conn.recv(4096)
-                reply = 'Received: ' + data
-                print reply 
-                if reply == 'Done':
-                    close()
-                try:
-                    array = json.loads(data)
-                    if array[0] == '1':
-                        self.send1.put(array)
-                        print "Put " + str(array[0]) + " in queue 1"
-                    elif array[0] == '2':
-                        self.send2.put(array)
-                        print "Put " + str(array[0]) + " in queue 2"
-                    print 'player ' + str(array[0]) 
-                    self.send(conn, array[0])
-                except ValueError:
-                    print "Decoding JSON has failed"
-                    sys.exit(0)
+                else:
+                    print "state: " + str(state)
+                    data = conn.recv(4096)
+                    reply = 'Received: ' + data
+                    print reply 
+                    if reply == 'Done':
+                        close()
+                    try:
+                        array = json.loads(data)
+                        if array[0] == '1':
+                            self.send1.put(array)
+                            print "Put " + str(array[0]) + " in queue 1"
+                        elif array[0] == '2':
+                            self.send2.put(array)
+                            print "Put " + str(array[0]) + " in queue 2"
+                        print 'player ' + str(array[0]) 
+                        self.send(conn, array[0])
+                    except ValueError:
+                        print "Decoding JSON has failed"
+                        sys.exit(0)
 
     #sends messages back to the clients
     def sendNumber(self, conn, number):

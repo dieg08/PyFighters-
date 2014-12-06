@@ -1,0 +1,3 @@
+server: trantracker.com
+user: diego
+pass: pythonisfun
