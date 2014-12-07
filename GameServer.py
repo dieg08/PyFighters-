@@ -71,11 +71,11 @@ class GameServer(object):
                             player = conn.recv(1024)
                             self.sendNumber(conn, num)
                             count = 2
-                        if num == '2' and self.one == None:
-                            self.one = conn.recv(1024)
-                            print "it get's here 1"
-                        elif num == '1' and self.two == None:
+                        if num == '2' and self.two == None:
                             self.two = conn.recv(1024)
+                            print "it get's here 1"
+                        elif num == '1' and self.one == None:
+                            self.one = conn.recv(1024)
                             print "it get's here 2"
                     if self.one != None and self.two != None:
                         print "Does it get here?"

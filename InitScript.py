@@ -64,15 +64,16 @@ def main(socket, character):
         center = hitbox.center
         keysp = client.getKeys()
         message = center
+        health = (opponent.getHP(), client.getOpponent().getHP())
         # sends packet for movement
-        send(s, player, message, keysp)
+        send(s, player, message, keysp, health)
         # receive packet
         data = s.recv(1024)
         reply = json.loads(data)
         # Check for movement
         if client.getKeys() != None:
-            print str(reply[1])
             client.move(reply[1])
+            #client.move(reply[1], reply[2])
         #client.keys = reply[2]
         # Check for jumping
         client.jump()
@@ -82,6 +83,9 @@ def main(socket, character):
         # Do attacks if necessary
         if client.getKeys() != None:
             client.attack()
+            client.getPlayer().setHP(reply[3][0])
+            client.getOpponent().setHP(reply[3][1])
+            
     if client.ifWin() == 1:
         WinScreen.winner("Player 1")
         end(s)
@@ -92,9 +96,9 @@ def main(socket, character):
 """
     Send information to the server
 """
-def send(s, player, msg, keys):
+def send(s, player, msg, keys, health):
     #Package to hold information to send to the server
-    message = [player, msg, keys]
+    message = [player, msg, keys, health]
     packet = json.dumps(message)
     #Try sending the message and catch any errors
     try:
