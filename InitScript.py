@@ -25,12 +25,10 @@ def main(socket, character):
     reply = s.recv(1024)
     #The player number for this client
     player = reply
-    print "player: " + player
     #send the character
     char_send(s, character)
     #THe parameter to be passed to game client
     reply = s.recv(1024)
-    print "it get's here"
     parameter = [character, reply]
     #Create a game client
     client = GameClient.GameClient(int(player), parameter)

@@ -65,7 +65,6 @@ class GameServer(object):
         while True:
             if self.thread_count == 2:
                 if state == 1:
-                    print "state 1"
                     if self.one == None or self.two == None:
                         if count == 1:
                             player = conn.recv(1024)
@@ -73,34 +72,32 @@ class GameServer(object):
                             count = 2
                         if num == '2' and self.two == None:
                             self.two = conn.recv(1024)
-                            print "it get's here 1"
+                            print "player 1 opponent: " + self.two
                         elif num == '1' and self.one == None:
                             self.one = conn.recv(1024)
-                            print "it get's here 2"
+                            print "player 2 opponent: " + self.one
                     if self.one != None and self.two != None:
-                        print "Does it get here?"
                         if num == '1':
-                            char = self.two
+                            char = self.two 
                         else:
                             char = self.one
                         self.sendChar(conn, char)
                         state = 2
                 else:
-                    print "state: " + str(state)
                     data = conn.recv(4096)
                     reply = 'Received: ' + data
-                    print reply 
+                    #print reply 
                     if reply == 'Done':
                         close()
                     try:
                         array = json.loads(data)
                         if array[0] == '1':
                             self.send1.put(array)
-                            print "Put " + str(array[0]) + " in queue 1"
+                            #print "Put " + str(array[0]) + " in queue 1"
                         elif array[0] == '2':
                             self.send2.put(array)
-                            print "Put " + str(array[0]) + " in queue 2"
-                        print 'player ' + str(array[0]) 
+                            #print "Put " + str(array[0]) + " in queue 2"
+                        #print 'player ' + str(array[0]) 
                         self.send(conn, array[0])
                     except ValueError:
                         print "Decoding JSON has failed"
