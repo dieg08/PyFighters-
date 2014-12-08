@@ -135,6 +135,7 @@ class GameClient:
                                         "Shot.gif").convert()
         self.p2Shot = pygame.image.load(self.opponentChar + "Sprite/" + \
                                         self.opponentChar + "Shot.gif").convert()
+        self.p2ShotRect = self.p2Shot.get_rect(center=(-50,-50))
         self.p1ShotRect = self.p1Shot.get_rect(center=(-50,-50))
         self.p1Melee = 0
         self.p1ShotSpeed = [0, 0]
@@ -204,6 +205,7 @@ class GameClient:
         #self.screen.blit(self.player1, self.player1Rect)
         #self.screen.blit(self.player2, self.player2Rect)
         self.screen.blit(self.p1Shot, self.p1ShotRect)
+        self.screen.blit(self.p2Shot, self.p2ShotRect)
         self.screen.blit(self.player.getCurrentImage(), self.player.getHitBox())
         self.screen.blit(self.opponent.getCurrentImage(), self.opponent.getHitBox())
         self.screen.blit(self.player1HP, self.p1HPRect)
@@ -455,6 +457,12 @@ class GameClient:
     """
     def getOpponent(self):
         return self.opponent
+
+    """
+        Set the center of the opponent's shot
+    """
+    def setShotRect(self, center):
+        self.p2ShotRect.center = center
 
     """
         Get the rectangle for the player's shot
