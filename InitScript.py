@@ -67,7 +67,7 @@ def main(socket, character):
         center = hitbox.center
         keysp = client.getKeys()
         message = center
-        health = (opponent.getHP(), client.getOpponent().getHP())
+        health = client.getOpponent().getHP()
         attack_pos = (client.getShotRect().center, client.getPlayer().getFace())
         # sends packet for movement
         send(s, player, message, keysp, health, attack_pos)
@@ -86,8 +86,7 @@ def main(socket, character):
         # Do attacks if necessary
         if client.getKeys() != None:
             client.attack()
-            client.getPlayer().setHP(reply[3][0])
-            client.getOpponent().setHP(reply[3][1])
+            client.getPlayer().setHP(reply[3])
             
     if client.ifWin() == 1:
         WinScreen.winner("Player 1")
