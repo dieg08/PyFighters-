@@ -32,7 +32,6 @@ class GameClient:
         # Set the screen size
         self.screen = pygame.display.set_mode((self.width, self.height), pygame.RESIZABLE)
         # Initialize the Pyfighters
-        print character[1]
         self.__initCharacters(playerNum, character)
         # Create the stage
         self.__createStage()
@@ -94,11 +93,13 @@ class GameClient:
             self.opponent = Pyfighter.Pyfighter(playerNum, character[playerNum])
             self.playerChar = character[playerNum - 1]
             self.opponentChar = character[playerNum]
+            self.opponent.setCurrentImage(pygame.transform.flip(self.opponent.getCurrentImage(), 1, 0))
         elif playerNum == 2:
             self.player = Pyfighter.Pyfighter(playerNum, character[playerNum - 1])
             self.opponent = Pyfighter.Pyfighter(playerNum, character[playerNum - 2])
             self.playerChar = character[playerNum - 1]
             self.opponentChar = character[playerNum - 2]
+            self.opponent.setCurrentImage(pygame.transform.flip(self.opponent.getCurrentImage(), 1, 0))
 
     """
         Initialize the jump counters for the player
@@ -166,6 +167,7 @@ class GameClient:
         if self.player.getFace() == "left":
             self.player.setCurrentImage(pygame.transform.flip(self.player.getCurrentImage(), 1, 0))
 
+        # Animate opponent's Pyfighter
         self.__animateOpponent(self.opponent, oppKeys)
 
         """
@@ -262,10 +264,8 @@ class GameClient:
         @param  center  The center of the hitbox of the opponent
     """
     def __moveOpponent(self, player, center):
-        #print center
         x = center[0]
         y = center[1]
-        #print "x = " + str(x) + ", y = " + str(y) 
         player.setHitBox((x, y))
 
     """
@@ -274,6 +274,7 @@ class GameClient:
         @param opponent The opponent
     """
     def opponentAttack(self, player):
+        #TODO
         return
 
     """
@@ -377,6 +378,9 @@ class GameClient:
             self.p1ShotCount = 0
             self.p1Shooting = False
 
+        # Check for hits
+        self.ifHit()
+
     """
         Check for hits
     """
@@ -399,7 +403,7 @@ class GameClient:
         @param  keys        The keys pressed by the oppponent
     """
     def __animateOpponent(self, player, keys):
-        if player.getSpeed()[1] != 0:
+        if player.getSpeed()[0] != 0:#not self.onPlatform(player.getHitBox(), player):
             player.setCurrentImage(1)# = pygame.image.load("CarverSprite/CarverJump.gif").convert()
         elif (keys[pygame.K_d] or keys[pygame.K_a]) and \
                 not (keys[pygame.K_d] and keys[pygame.K_a]):
@@ -451,3 +455,9 @@ class GameClient:
     """
     def getOpponent(self):
         return self.opponent
+
+    """
+        Get the rectangle for the player's shot
+    """
+    def getShotRect(self):
+        return self.p1ShotRect
