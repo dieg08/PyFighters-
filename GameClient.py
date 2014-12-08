@@ -174,13 +174,13 @@ class GameClient:
         """
             Handle HP Bar change and Victory conditions
         """
-        if self.p1HP > 0 and self.p2HP > 0:
-            self.player1HP = pygame.image.load("CarverHP/CarverHP%d.gif" % (self.p1HP / 10)).convert() 
-            self.player2HP = pygame.image.load("OrcHP/OrcHP%d.gif" % (self.p2HP / 10)).convert()
+        if self.player.getHP() > 0 and self.opponent.getHP() > 0:
+            self.player1HP = pygame.image.load("CarverHP/CarverHP%d.gif" % (self.player.getHP() / 10)).convert()
+            self.player2HP = pygame.image.load("OrcHP/OrcHP%d.gif" % (self.opponent.getHP() / 10)).convert()
         else:
-            if self.p1HP <= 0 and self.p2HP > 0:
+            if self.player.getHP() <= 0 and self.opponent.getHP() > 0:
                 self.whoWins = 2
-            elif self.p1HP > 0 and self.p2HP <= 0:
+            elif self.player.getHP() > 0 and self.opponent.getHP() <= 0:
                 self.whoWins = 1
             else:
                 self.whoWins = 3
@@ -428,9 +428,12 @@ class GameClient:
         if player.getFace() == "left":
             player.setCurrentImage(pygame.transform.flip(player.getCurrentImage(), 1, 0))
 
-
+    """
+        Initialize each Pyfighter's Health
+    """
     def __initializePlayerHealth(self):
-        return
+        self.player.setHP(130)
+        self.opponent.setHP(130)
 
 
     """
@@ -461,8 +464,8 @@ class GameClient:
     """
         Set the center of the opponent's shot
     """
-    def setShotRect(self, center):
-        self.p2ShotRect.center = center
+    def setShotRect(self, shot):
+        self.p2ShotRect.center = shot[0]
 
     """
         Get the rectangle for the player's shot
