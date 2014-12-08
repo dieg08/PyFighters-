@@ -68,7 +68,7 @@ def main(socket, character):
         keysp = client.getKeys()
         message = center
         health = (opponent.getHP(), client.getOpponent().getHP())
-        attack_pos = client.getShotRect().center
+        attack_pos = (client.getShotRect().center, client.getPlayer().getFace())
         # sends packet for movement
         send(s, player, message, keysp, health, attack_pos)
         # receive packet
@@ -78,8 +78,6 @@ def main(socket, character):
         if client.getKeys() != None:
             client.move(reply[1])
             client.setShotRect(reply[4])
-            #client.move(reply[1], reply[2])
-        #client.keys = reply[2]
         # Check for jumping
         client.jump()
         # Render the screen
