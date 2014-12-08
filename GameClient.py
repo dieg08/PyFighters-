@@ -142,7 +142,7 @@ class GameClient:
         Handles the redrawing of the sprites and the stage, as well as
         the animations.
     """
-    def render(self):
+    def render(self, oppKeys):
         if self.player.getSpeed()[1] != 0:
             self.player.setCurrentImage(1)# = pygame.image.load("CarverSprite/CarverJump.gif").convert()
         elif (self.keys[pygame.K_d] or self.keys[pygame.K_a]) and \
@@ -165,6 +165,8 @@ class GameClient:
                     
         if self.player.getFace() == "left":
             self.player.setCurrentImage(pygame.transform.flip(self.player.getCurrentImage(), 1, 0))
+
+        self.__animateOpponent(self.opponent, oppKeys)
 
         """
             Handle HP Bar change and Victory conditions
@@ -237,12 +239,12 @@ class GameClient:
             self.player.setPyfighterX(3.5)
             if self.player.getFace() == "left":
                 self.player.setFace("right")
-                self.player.setFace(pygame.transform.flip(self.player.getCurrentImage(), 1, 0))
+                #self.player.setFace(pygame.transform.flip(self.player.getCurrentImage(), 1, 0))
         if self.keys[pygame.K_a]:
             self.player.setPyfighterX(-3.5)
             if self.player.getFace() == "right":
                 self.player.setFace("left")
-                self.player.setFace(pygame.transform.flip(self.player.getCurrentImage(), 1, 0))
+                #self.player.setFace(pygame.transform.flip(self.player.getCurrentImage(), 1, 0))
         if self.keys[pygame.K_a] and self.keys[pygame.K_d]:
             self.player.setPyfighterX(0)
         if self.keys[pygame.K_SPACE]:
@@ -397,7 +399,28 @@ class GameClient:
         @param  keys        The keys pressed by the oppponent
     """
     def __animateOpponent(self, player, keys):
-        return
+        if player.getSpeed()[1] != 0:
+            player.setCurrentImage(1)# = pygame.image.load("CarverSprite/CarverJump.gif").convert()
+        elif (keys[pygame.K_d] or keys[pygame.K_a]) and \
+                not (keys[pygame.K_d] and keys[pygame.K_a]):
+            if self.image2Count < 10:
+                player.setCurrentImage(3)# = pygame.image.load("CarverSprite/CarverRun0.gif").convert()
+                self.image2Count = self.image2Count + 1
+            elif self.image2Count < 19:
+                player.setCurrentImage(4)# = pygame.image.load("CarverSprite/CarverRun1.gif").convert()
+                self.image2Count = self.image2Count + 1
+            else:
+                self.image2Count = 0
+        else:
+            player.setCurrentImage(0)# = pygame.image.load("CarverSprite/CarverStill.gif").convert()
+
+        if keys[pygame.K_d]:
+            player.setFace("right")
+        elif keys[pygame.K_a]:
+            player.setFace("left")
+
+        if player.getFace() == "left":
+            player.setCurrentImage(pygame.transform.flip(player.getCurrentImage(), 1, 0))
 
 
     def __initializePlayerHealth(self):

@@ -82,7 +82,7 @@ def main(socket, character):
         client.jump()
         # Render the screen
         if client.getKeys() != None:
-            client.render()
+            client.render(reply[2])
         # Do attacks if necessary
         if client.getKeys() != None:
             client.attack()

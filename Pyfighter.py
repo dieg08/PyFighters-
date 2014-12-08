@@ -27,7 +27,7 @@ class Pyfighter:
             self.hitBox = self.currentImage.get_rect(bottom=585, left=700)
             self.face = "left"
         # Pyfighter HP
-        self.hp = 100
+        self.hp = 130
 
     """
         Set up the image array for the Pyfighter
@@ -40,7 +40,7 @@ class Pyfighter:
         # 1 Jump image of Pyfighter
         self.images.append(pygame.image.load(self.name + "Sprite/" +
                            self.name + "Jump.gif").convert())
-        # 2 Melee image of Pyfighter
+        # 2 Melee image of Pyfighter ---TBI---
         self.images.append(pygame.image.load("OrcSprite/SpitSustain.gif").convert())# self.name + "Sprite/" + self.name + "Melee.gif").convert())
         # 3 First run frame of Pyfighter
         self.images.append(pygame.image.load(self.name + "Sprite/" +
@@ -100,6 +100,9 @@ class Pyfighter:
     def getHP(self):
         return self.hp
 
+    def getKeys(self):
+        return self.keys
+
     """
         Change the amount of hp for the Pyfighter
     """
@@ -111,8 +114,6 @@ class Pyfighter:
     """
     def setHitBox(self, center):
         self.hitBox.center = center
-        #self.hitBox.centerx = x
-        #self.hitBox.centery = y
 
     """
         Set the face of the Pyfighter
