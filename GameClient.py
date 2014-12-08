@@ -402,6 +402,15 @@ class GameClient:
                     self.opponent.setHP(self.opponent.getHP() - 5)
                     self.p1ShotRect.center = (-50, -50)
                     self.p1ShotSpeed[0] = 0
+        elif self.p1ShotDirection == "left":
+            if self.p1ShotRect.centerx + self.p1ShotSpeed[0] <= \
+                    self.opponent.getHitBox().right:
+                if self.p1ShotRect.centerx > self.opponent.getHitBox().left and \
+                                self.p1ShotRect.centery < self.opponent.getHitBox().bottom and \
+                                self.p1ShotRect.centery > self.opponent.getHitBox().top:
+                    self.opponent.setHP(self.opponent.getHP() - 5)
+                    self.p1ShotRect.center = (-50, -50)
+                    self.p1ShotSpeed[0] = 0
 
 
     """
