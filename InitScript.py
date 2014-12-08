@@ -71,7 +71,7 @@ def main(socket, character):
         attack_pos = (client.getShotRect().center, client.getPlayer().getFace())
         # sends packet for movement
         send(s, player, message, keysp, health, attack_pos)
-        # receive packets
+        # receive packet
         data = s.recv(1024)
         reply = json.loads(data)
         # Check for movement
