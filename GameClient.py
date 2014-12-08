@@ -73,10 +73,13 @@ class GameClient:
         Create the HP bars on the screen
     """
     def __createHpBars(self, player):
+        # Load player's hp bar
         self.playerHP = pygame.image.load(self.player.getName() + "HP/" +
                                            self.player.getName() + "HP13.gif").convert()
+        # Load opponent's hp bar
         self.opponentHP = pygame.image.load(self.opponent.getName() + "HP/" +
                                            self.opponent.getName() + "HP13.gif").convert()
+        # Set the locations of the hp bars
         if player == 1:
             self.playerHPRect = self.playerHP.get_rect(right=(self.width/8), top=(self.height/10))
             self.opponentHPRect = self.opponentHP.get_rect(left=(self.width-(self.width/8)), top=(self.height/10))
@@ -88,21 +91,30 @@ class GameClient:
         Initialize Pyfighters
     """
     def __initCharacters(self, playerNum, character):
+        # Default Pyfighters
         self.playerChar = character[0]
         self.opponentChar = character[1]
+        # Default player numbers
         self.player = None
         self.opponent = None
+        # Determine which player this client is
         if playerNum == 1:
+            # Set each player's Pyfighter
             self.player = Pyfighter.Pyfighter(playerNum, character[playerNum - 1])
             self.opponent = Pyfighter.Pyfighter(playerNum, character[playerNum])
+            # Set each player's character
             self.playerChar = character[playerNum - 1]
             self.opponentChar = character[playerNum]
+            # Turn the opponent to the correct facing
             self.opponent.setCurrentImage(pygame.transform.flip(self.opponent.getCurrentImage(), 1, 0))
         elif playerNum == 2:
+            # Set each player's Pyfighter
             self.player = Pyfighter.Pyfighter(playerNum, character[playerNum - 1])
             self.opponent = Pyfighter.Pyfighter(playerNum, character[playerNum - 2])
+            # Set each player's character
             self.playerChar = character[playerNum - 1]
             self.opponentChar = character[playerNum - 2]
+            # Turn the opponent to the correct facing
             self.opponent.setCurrentImage(pygame.transform.flip(self.opponent.getCurrentImage(), 1, 0))
 
     """
@@ -132,15 +144,18 @@ class GameClient:
         Initialize the attach counters for the player
     """
     def __initAttackCounters(self, character):
+        # Initialize client's shot information
         self.p1Shooting = False
         self.p1ShotDirection = "right"
         self.p1ShotCount = 0
         self.p1Shot = pygame.image.load(character + "Sprite/" + character + \
                                         "Shot.gif").convert()
+        # Initialize opponent's shot information
         self.p2Shot = pygame.image.load(self.opponentChar + "Sprite/" + \
                                         self.opponentChar + "Shot.gif").convert()
         self.p2ShotRect = self.p2Shot.get_rect(center=(-50,-50))
         self.p1ShotRect = self.p1Shot.get_rect(center=(-50,-50))
+        # Initialize player's attack information
         self.p1Melee = 0
         self.p1ShotSpeed = [0, 0]
 
@@ -150,34 +165,37 @@ class GameClient:
     """
     def render(self, oppKeys):
         if self.player.getSpeed()[1] != 0:
-            self.player.setCurrentImage(1)# = pygame.image.load("CarverSprite/CarverJump.gif").convert()
+            # Set to jump image
+            self.player.setCurrentImage(1)
         elif (self.keys[pygame.K_d] or self.keys[pygame.K_a]) and \
             not (self.keys[pygame.K_d] and self.keys[pygame.K_a]):
             if self.image1Count < 10:
-                self.player.setCurrentImage(3)# = pygame.image.load("CarverSprite/CarverRun0.gif").convert()
+                # Set running frame
+                self.player.setCurrentImage(3)
                 self.image1Count = self.image1Count + 1
             elif self.image1Count < 19:
-                self.player.setCurrentImage(4)# = pygame.image.load("CarverSprite/CarverRun1.gif").convert()
+                # Next running frame
+                self.player.setCurrentImage(4)
                 self.image1Count = self.image1Count + 1
             else:
                 self.image1Count = 0
         else:
-            self.player.setCurrentImage(0)# = pygame.image.load("CarverSprite/CarverStill.gif").convert()
+            # Set to still frame
+            self.player.setCurrentImage(0)
 
+        # Set player facing
         if self.keys[pygame.K_d]:
             self.player.setFace("right")
         elif self.keys[pygame.K_a]:
             self.player.setFace("left")
-                    
+        # Flip player image if changing direction
         if self.player.getFace() == "left":
             self.player.setCurrentImage(pygame.transform.flip(self.player.getCurrentImage(), 1, 0))
 
         # Animate opponent's Pyfighter
         self.__animateOpponent(self.opponent, oppKeys)
 
-        """
-            Handle HP Bar change and Victory conditions
-        """
+        # Handle HP Bar change and Victory conditions
         if self.player.getHP() > 0 and self.opponent.getHP() > 0:
             self.playerHP = pygame.image.load(self.player.getName() + "HP/" +
                                               self.player.getName() + "HP%d.gif" % (self.player.getHP() / 10)).convert()
@@ -193,13 +211,13 @@ class GameClient:
 
         # Draw to the screen
         self.__blit()
+        # Delay for playability
         time.sleep(.01)
 
     """
         Draw all objects to the screen
     """
     def __blit(self):
-        # Draw
         self.p1ShotRect = self.p1ShotRect.move(self.p1ShotSpeed)
         self.player.setHitBox(self.player.getHitBox().move(self.player.getSpeed()).center)
         self.opponent.setHitBox(self.opponent.getHitBox().move(self.opponent.getSpeed()).center)
@@ -208,8 +226,6 @@ class GameClient:
         self.screen.blit(self.centerPlat.getPlat(), self.centerPlat.getRect())
         self.screen.blit(self.leftPlat.getPlat(), self.leftPlat.getRect())
         self.screen.blit(self.rightPlat.getPlat(), self.rightPlat.getRect())
-        #self.screen.blit(self.player1, self.player1Rect)
-        #self.screen.blit(self.player2, self.player2Rect)
         self.screen.blit(self.p1Shot, self.p1ShotRect)
         self.screen.blit(self.p2Shot, self.p2ShotRect)
         self.screen.blit(self.player.getCurrentImage(), self.player.getHitBox())
@@ -232,6 +248,9 @@ class GameClient:
         self.__walled(self.player)
         self.__walled(self.opponent)
 
+    """
+        Prevent a player from moving through a wall
+    """
     def __walled(self, player):
         if player.getHitBox().right + player.getSpeed()[0] > 785 or \
            player.getHitBox().left + player.getSpeed()[0] < 15:
@@ -249,19 +268,17 @@ class GameClient:
             self.player.setPyfighterX(3.5)
             if self.player.getFace() == "left":
                 self.player.setFace("right")
-                #self.player.setFace(pygame.transform.flip(self.player.getCurrentImage(), 1, 0))
         if self.keys[pygame.K_a]:
             self.player.setPyfighterX(-3.5)
             if self.player.getFace() == "right":
                 self.player.setFace("left")
-                #self.player.setFace(pygame.transform.flip(self.player.getCurrentImage(), 1, 0))
         if self.keys[pygame.K_a] and self.keys[pygame.K_d]:
             self.player.setPyfighterX(0)
         if self.keys[pygame.K_SPACE]:
             if self.jump1Max < 2:
                 self.jump1 = 4
                 self.jump1Peak = self.player.getHitBox().top - 100
-            self.jump1Max = self.jump1Max + 1
+            self.jump1Max += 1
         if not self.keys[pygame.K_a] and not self.keys[pygame.K_d]:
             self.player.setPyfighterX(0)
 
