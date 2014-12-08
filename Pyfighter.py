@@ -100,9 +100,6 @@ class Pyfighter:
     def getHP(self):
         return self.hp
 
-    def getKeys(self):
-        return self.keys
-
     """
         Change the amount of hp for the Pyfighter
     """

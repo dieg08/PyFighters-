@@ -44,9 +44,7 @@ class GameClient:
         # The bounds of the game screen
         self.backRect = self.stage.getLevelRect()
         # Set up HP bars and health
-        self.__createHpBars()
-        self.p1HP = 130
-        self.p2HP = 130
+        self.__createHpBars(playerNum)
         # Initialize jump counters for the player
         self.__initJumpCounters()
         # Initialize attack counters
@@ -74,11 +72,17 @@ class GameClient:
     """
         Create the HP bars on the screen
     """
-    def __createHpBars(self):
-        self.player1HP = pygame.image.load("CarverHP/CarverHP13.gif").convert()
-        self.p1HPRect = self.player1HP.get_rect(right=(self.width/8), top=(self.height/10))
-        self.player2HP = pygame.image.load("OrcHP/OrcHP13.gif").convert()
-        self.p2HPRect = self.player1HP.get_rect(left=(self.width-(self.width/8)), top=(self.height/10))
+    def __createHpBars(self, player):
+        self.playerHP = pygame.image.load(self.player.getName() + "HP/" +
+                                           self.player.getName() + "HP13.gif").convert()
+        self.opponentHP = pygame.image.load(self.opponent.getName() + "HP/" +
+                                           self.opponent.getName() + "HP13.gif").convert()
+        if player == 1:
+            self.playerHPRect = self.playerHP.get_rect(right=(self.width/8), top=(self.height/10))
+            self.opponentHPRect = self.opponentHP.get_rect(left=(self.width-(self.width/8)), top=(self.height/10))
+        elif player == 2:
+            self.opponentHPRect = self.opponentHP.get_rect(right=(self.width/8), top=(self.height/10))
+            self.playerHPRect = self.playerHP.get_rect(left=(self.width-(self.width/8)), top=(self.height/10))
 
     """
         Initialize Pyfighters
@@ -175,8 +179,10 @@ class GameClient:
             Handle HP Bar change and Victory conditions
         """
         if self.player.getHP() > 0 and self.opponent.getHP() > 0:
-            self.player1HP = pygame.image.load("CarverHP/CarverHP%d.gif" % (self.player.getHP() / 10)).convert()
-            self.player2HP = pygame.image.load("OrcHP/OrcHP%d.gif" % (self.opponent.getHP() / 10)).convert()
+            self.playerHP = pygame.image.load(self.player.getName() + "HP/" +
+                                              self.player.getName() + "HP%d.gif" % (self.player.getHP() / 10)).convert()
+            self.opponentHP = pygame.image.load(self.opponent.getName() + "HP/" +
+                                                self.opponent.getName() + "HP%d.gif" % (self.opponent.getHP() / 10)).convert()
         else:
             if self.player.getHP() <= 0 and self.opponent.getHP() > 0:
                 self.whoWins = 2
@@ -208,8 +214,8 @@ class GameClient:
         self.screen.blit(self.p2Shot, self.p2ShotRect)
         self.screen.blit(self.player.getCurrentImage(), self.player.getHitBox())
         self.screen.blit(self.opponent.getCurrentImage(), self.opponent.getHitBox())
-        self.screen.blit(self.player1HP, self.p1HPRect)
-        self.screen.blit(self.player2HP, self.p2HPRect)
+        self.screen.blit(self.playerHP, self.playerHPRect)
+        self.screen.blit(self.opponentHP, self.opponentHPRect)
         pygame.display.flip()
 
     """
@@ -393,7 +399,7 @@ class GameClient:
                 if self.p1ShotRect.centerx < self.opponent.getHitBox().right and \
                    self.p1ShotRect.centery < self.opponent.getHitBox().bottom and \
                    self.p1ShotRect.centery > self.opponent.getHitBox().top:
-                    self.p2HP = self.p2HP - 5
+                    self.opponent.setHP(self.opponent.getHP() - 5)
                     self.p1ShotRect.center = (-50, -50)
                     self.p1ShotSpeed[0] = 0
 
@@ -460,6 +466,12 @@ class GameClient:
     """
     def getOpponent(self):
         return self.opponent
+
+    """
+        Set player's HP
+    """
+    def setPlayerHP(self, hp):
+        self.player.setHP(hp)
 
     """
         Set the center of the opponent's shot
