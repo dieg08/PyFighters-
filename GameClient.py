@@ -220,7 +220,7 @@ class GameClient:
         # Draw to the screen
         self.__blit()
         # Delay for playability
-        time.sleep(.01)
+        time.sleep(.001)
 
     """
         Draw all objects to the screen
