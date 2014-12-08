@@ -154,8 +154,7 @@ def main():
     
     
     # code for our menu 
-    ourMenu = ("Play PyFighters",
-               "Local Play",
+    ourMenu = ("Play Online",
                "How to play",
                "Statistics",
                "Exit")
@@ -173,7 +172,7 @@ def main():
             if event.type == QUIT:
                 sys.exit(0)
             elif event.type == Menu.MENUCLICKEDEVENT:    
-                if event.text == "Play PyFighters":
+                if event.text == "Play Online":
                     time.sleep(1)
                     character = CharSelect.charselect()
                     print "Just Waiting..."

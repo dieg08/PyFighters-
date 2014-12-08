@@ -86,7 +86,7 @@ def main(socket, character):
         # Do attacks if necessary
         if client.getKeys() != None:
             client.attack()
-            client.getPlayer().setHP(reply[3])
+            client.setPlayerHP(reply[3])
             
     if client.ifWin() == 1:
         WinScreen.winner("Player 1")
