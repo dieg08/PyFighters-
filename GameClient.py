@@ -21,6 +21,8 @@ class GameClient:
         play the game.
     """
     def __init__(self, playerNum, character):
+        # player number to check for win
+        self.number = playerNum
         # Black color
         self.black = 0, 0, 0
         # Set screen dimensions
@@ -203,9 +205,15 @@ class GameClient:
                                                 self.opponent.getName() + "HP%d.gif" % (self.opponent.getHP() / 10)).convert()
         else:
             if self.player.getHP() <= 0 and self.opponent.getHP() > 0:
-                self.whoWins = 2
+                if self.number == 1:
+                    self.whoWins = 2
+                else:
+                    self.whoWins = 1
             elif self.player.getHP() > 0 and self.opponent.getHP() <= 0:
-                self.whoWins = 1
+                if self.number == 1:
+                    self.whoWins = 1
+                else:
+                    self.whoWins = 2
             else:
                 self.whoWins = 3
 

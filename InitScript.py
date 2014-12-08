@@ -46,6 +46,7 @@ def main(socket, character):
     keysp = None
     #Message that will be sent
     message = None
+    winner = 0
     #Start the game
     while client.ifWin() < 1:
         """
@@ -70,7 +71,7 @@ def main(socket, character):
         health = client.getOpponent().getHP()
         attack_pos = (client.getShotRect().center, client.getPlayer().getFace())
         # sends packet for movement
-        send(s, player, message, keysp, health, attack_pos)
+        send(s, player, message, keysp, health, attack_pos, winner)
         # receive packet
         data = s.recv(1024)
         reply = json.loads(data)
@@ -88,19 +89,21 @@ def main(socket, character):
             client.attack()
             client.setPlayerHP(reply[3])
             
-    if client.ifWin() == 1:
+    if client.ifWin() == 1 or reply[4] == '1':
+        send(s, player, message, keysp, health, attack_pos, '1')
         WinScreen.winner("Player 1")
         end(s)
-    elif client.ifWin() == 2:
+    elif client.ifWin() == 2 or reply[4] == '2':
+        send(s, player, message, keysp, health, attack_pos, '2')
         WinScreen.winner("Player 2")
         end(s)
 
 """
     Send information to the server
 """
-def send(s, player, msg, keys, health, attack):
+def send(s, player, msg, keys, health, attack, winner):
     #Package to hold information to send to the server
-    message = [player, msg, keys, health, attack]
+    message = [player, msg, keys, health, attack, winner]
     packet = json.dumps(message)
     #Try sending the message and catch any errors
     try:
