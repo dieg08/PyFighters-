@@ -7,13 +7,13 @@ class MenuItem (pygame.font.Font):
     '''
     The Menu Item should be derived from the pygame Font class
     '''
-    def __init__(self, text, position, fontSize=50, antialias=1, color=(0, 0, 255), background=None):
-        pygame.font.Font.__init__(self, "fonts/moonhouse.ttf", fontSize)
+    def __init__(self, text, position, fontSize=50, antialias=1, color=(255, 255, 255), background=None):
+        pygame.font.Font.__init__(self, "fonts/Sketch Gothic School.ttf", fontSize)
         self.text = text
         if background == None:
-            self.textSurface = self.render(self.text, antialias, (0, 0, 255))
+            self.textSurface = self.render(self.text, antialias, (255, 255, 255))
         else:
-            self.textSurface = self.render(self.text, antialias, (0, 0, 255), background)
+            self.textSurface = self.render(self.text, antialias, (255, 255, 255), background)
 
         self.position = self.textSurface.get_rect(centerx=position[0], centery=position[1])
     def get_pos(self):
@@ -72,8 +72,8 @@ class Menu:
     def drawMenu(self):
         self.active = True
     
-        myfont = pygame.font.Font("fonts/moonhouse.ttf", 125)
-        title = myfont.render("PyFighters", 1, (0, 255, 0))
+        myfont = pygame.font.Font("fonts/Sketch Gothic School.ttf", 125)
+        title = myfont.render("PyFighters", 1, (255, 255, 255))
         textpos = title.get_rect()
         textpos.centerx = self.level.get_rect().centerx
         screen = pygame.display.get_surface()

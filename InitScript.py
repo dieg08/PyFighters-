@@ -68,14 +68,16 @@ def main(socket, character):
         keysp = client.getKeys()
         message = center
         health = (opponent.getHP(), client.getOpponent().getHP())
+        attack_pos = client.getShotRect().center
         # sends packet for movement
-        send(s, player, message, keysp, health)
+        send(s, player, message, keysp, health, attack_pos)
         # receive packet
         data = s.recv(1024)
         reply = json.loads(data)
         # Check for movement
         if client.getKeys() != None:
             client.move(reply[1])
+            client.setShotRect(reply[4])
             #client.move(reply[1], reply[2])
         #client.keys = reply[2]
         # Check for jumping
@@ -99,9 +101,9 @@ def main(socket, character):
 """
     Send information to the server
 """
-def send(s, player, msg, keys, health):
+def send(s, player, msg, keys, health, attack):
     #Package to hold information to send to the server
-    message = [player, msg, keys, health]
+    message = [player, msg, keys, health, attack]
     packet = json.dumps(message)
     #Try sending the message and catch any errors
     try:
