@@ -31,7 +31,12 @@ def main(socket, character):
     reply = s.recv(1024)
     parameter = [character, reply]
     #Create a game client
+    if player == '1':
+        parameter = [character, reply]
+    else:
+        parameter = [reply, character]
     client = GameClient.GameClient(int(player), parameter)
+
     #Print the player number (test)
     print "Player: " + str(player)
     #print the opponents character (test)

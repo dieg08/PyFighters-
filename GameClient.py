@@ -260,10 +260,10 @@ class GameClient:
         @param  center  The center of the hitbox of the opponent
     """
     def __moveOpponent(self, player, center):
-        print center
+        #print center
         x = center[0]
         y = center[1]
-        print "x = " + str(x) + ", y = " + str(y) 
+        #print "x = " + str(x) + ", y = " + str(y) 
         player.setHitBox((x, y))
 
     """
