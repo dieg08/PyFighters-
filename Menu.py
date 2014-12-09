@@ -107,10 +107,11 @@ class Menu:
 
 def socketInit():                                                               
     #Server IP and Port num                                                     
-    host = '75.143.179.79'                                                          
-    #host = 'agora.cs.wcu.edu'                                                          
+    #host = '75.143.179.79'                                                          
+    host = 'agora.cs.wcu.edu'                                                          
     #host = '127.0.0.1'                                                          
-    port = 6969                                                                 
+    #port = 6969                                                                 
+    port = 8080                                                                 
     player = 1                                                                  
     #Try to create the socket and throw appropriate errs                        
     try:                                                                        

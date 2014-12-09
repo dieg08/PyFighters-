@@ -5,21 +5,22 @@ import Tkinter, tkMessageBox
 
 def charselect():
     pygame.init()
+    white = (255, 255, 255)
     screen = pygame.display.get_surface()
     screen = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
-    level = pygame.image.load("background/selectScreen.jpg").convert()
+    level = pygame.image.load("background/back2.jpg").convert()
     orc = pygame.image.load("background/orc.jpg").convert()
     carver = pygame.image.load("background/warrior.jpg").convert()
-    myfont = pygame.font.Font("fonts/Capture_it.ttf", 100)
-    ofont = pygame.font.Font("fonts/Capture_it.ttf", 40)
+    myfont = pygame.font.Font("fonts/Sketch Gothic School.ttf", 100)
+    ofont = pygame.font.Font("fonts/Sketch Gothic School.ttf", 40)
     title = "Select Player"
     player1 = "Orc"
     player2 = "Carver"
     wait = "Waiting..."
-    label = myfont.render(title, 1, (0, 0, 0))
-    one_title = ofont.render(player1, 1, (0, 0, 0))
-    two_title = ofont.render(player2, 1, (0, 0, 0))
-    wait_title = ofont.render(wait, 1, (0, 0, 0))
+    label = myfont.render(title, 1, white)
+    one_title = ofont.render(player1, 1, white)
+    two_title = ofont.render(player2, 1, white)
+    wait_title = ofont.render(wait, 1, white)
     waitpos = wait_title.get_rect()
     textpos = label.get_rect()
     orcpos = orc.get_rect()

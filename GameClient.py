@@ -117,7 +117,7 @@ class GameClient:
             self.playerChar = character[playerNum - 1]
             self.opponentChar = character[playerNum - 2]
             # Turn the opponent to the correct facing
-            self.opponent.setCurrentImage(pygame.transform.flip(self.opponent.getCurrentImage(), 1, 0))
+            self.player.setCurrentImage(pygame.transform.flip(self.player.getCurrentImage(), 1, 0))
 
     """
         Initialize the jump counters for the player
@@ -220,7 +220,7 @@ class GameClient:
         # Draw to the screen
         self.__blit()
         # Delay for playability
-        time.sleep(.001)
+        time.sleep(.01)
 
     """
         Draw all objects to the screen
@@ -424,7 +424,7 @@ class GameClient:
                 if self.p1ShotRect.centerx < self.opponent.getHitBox().right and \
                    self.p1ShotRect.centery < self.opponent.getHitBox().bottom and \
                    self.p1ShotRect.centery > self.opponent.getHitBox().top:
-                    self.opponent.setHP(self.opponent.getHP() - 5)
+                    self.opponent.setHP(self.opponent.getHP() - 15)
                     self.p1ShotRect.center = (-50, -50)
                     self.p1ShotSpeed[0] = 0
         elif self.p1ShotDirection == "left":
@@ -433,7 +433,7 @@ class GameClient:
                 if self.p1ShotRect.centerx > self.opponent.getHitBox().left and \
                                 self.p1ShotRect.centery < self.opponent.getHitBox().bottom and \
                                 self.p1ShotRect.centery > self.opponent.getHitBox().top:
-                    self.opponent.setHP(self.opponent.getHP() - 5)
+                    self.opponent.setHP(self.opponent.getHP() - 15)
                     self.p1ShotRect.center = (-50, -50)
                     self.p1ShotSpeed[0] = 0
 
